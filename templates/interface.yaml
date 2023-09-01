@@ -1,0 +1,156 @@
+name: Interface
+properties:
+  name:
+    type: STRING
+    default: "\"UNKNOWN\""
+  alias:
+    type: STRING
+    default: "\"\""
+  direction:
+    type: STRING
+    default:  "\"DIRECTION_NOT_SET\""
+    allowed: [ "\"DIRECTION_NOT_SET\"", "\"INCOMING\"", "\"OUTGOING\"", "\"BIDIRECTIONAL\"" ]
+  multiplicity:
+    type: STRING
+    default:  "\"MULTIPLICITY_NOT_SET\""
+    allowed: [ "\"MULTIPLICITY_NOT_SET\"", "\"ONE\"", "\"N\"" ]
+  data:
+    type: JSON
+    default:   {}
+relations:
+  others:
+    type: connected_to
+    other_classnames:
+      - Interface
+    advanced_setter: true
+  from_others:
+    type: connected_to
+    other_classnames:
+      - Interface
+    inverse: true
+    advanced_setter: true
+  original:
+    type: alias_of
+    other_classnames:
+      - Interface
+  model:
+    type: instance_of
+    other_classnames:
+      - InterfaceModel
+  parent:
+    type: has
+    other_classnames:
+      - Component
+      - ComponentModel
+      - Module
+    inverse: true
+    advanced_setter: true
+  interfaces_of_abstracts:
+    type: implements
+    other_classnames:
+      - Interface
+    advanced_setter: true
+uri:
+  scheme: drock
+  root_path:  /
+  from:
+    - name: parent
+    - name: name
+    - name: direction
+methods:
+  get_domain:
+    description: "This function returns the domain of the interface"
+    returns:
+      type: STRING
+
+  get_type:
+    const: True
+    returns:
+      type: XTYPE(InterfaceModelPtr)
+    description: "Returns the model of which this interface has been instantiated from"
+
+  instance_of:
+    arguments:
+      - name: model
+        type: XTYPE(InterfaceModel)
+    description: "This function adds a instance to the InterfaceModel"
+
+  child_of:
+    arguments:
+      - name: parent
+        type: XTYPE(XType)
+    description: "This function adds an interface to either a component or a component model. TODO: Could be templated?"
+
+  alias_of:
+    arguments:
+      - name: interface
+        type: XTYPE(Interface)
+    description: "This functions marks this interface as being an alias of another interface. This is used to export internal interfaces of a component model to the exterior."
+
+  connected_to:
+    arguments:
+      - name: interface
+        type: XTYPE(Interface)
+      - name: properties
+        type: JSON
+        default: {}
+    returns:
+      type: BOOLEAN
+    description: "This function connects this interface to another interface. The connection can have properties and the connection can fail if invalid."
+
+  disconnect:
+    description: "This function disconnects the interface from it's connected interfaces"
+
+  is_connectable_to:
+    arguments:
+      - name: other
+        type: XTYPE(Interface)
+    returns:
+      type: BOOLEAN
+    description: "This function checks if this and the other interface are connectable. That means they have to be compatible AND their current connection status allows further connections"
+
+  is_compatible_with:
+    arguments:
+      - name: other
+        type: XTYPE(Interface)
+    returns:
+      type: BOOLEAN
+    description: "This function checks if this and the other interface are compatible by means of connecting them (type, direction, etc)."
+
+  has_same_type:
+    arguments:
+      - name: other
+        type: XTYPE(Interface)
+    returns:
+      type: BOOLEAN
+    description: "This function returns true if both interfaces share the same type/InterfaceModel"
+
+  can_realize:
+    arguments:
+      - name: other
+        type: XTYPE(Interface)
+    returns:
+      type: BOOLEAN
+    description: "This function returns true if this interface can realize another"
+
+  get_dynamic_interface:
+    returns:
+      type: XTYPE(DynamicInterfacePtr)
+    description: "This returns the  DynamicInterface instance related to this resolved interface if it has one, otherwise nullptr"
+
+  realizes:
+    arguments:
+      - name: interface_of_abstract_component_model
+        type: XTYPE(Interface)
+    description: "This function states that this Interface is the realization of an Interface of an Abstract ComponentModel"
+
+  unrealize:
+    description: "This function removes the realization which has been done with the abstract interface"
+
+  has_realization:
+    arguments:
+      - name: other
+        type: XTYPE(Interface)
+    returns:
+      type: BOOLEAN
+    description: "This function returns true if this interface has already realized an abstract interface"

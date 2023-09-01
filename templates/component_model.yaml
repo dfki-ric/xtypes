@@ -1,0 +1,271 @@
+name: ComponentModel
+properties:
+  name:
+    type: STRING
+    default: "\"UNKNOWN\""
+  domain:
+    type: STRING
+    default:  "\"NOT_SET\""
+    allowed: [ "\"NOT_SET\"", "\"SOFTWARE\"", "\"MECHANICS\"", "\"COMPUTATION\"", "\"ELECTRONICS\"", "\"BEHAVIOR\"", "\"ASSEMBLY\""]
+  version:
+    type: STRING
+    default:  "\"UNKNOWN\""
+  # TODO: date could be a custom type
+  date:
+    type: STRING
+    default:  "\"00-00-0000\""
+  designedBy:
+    type: STRING
+    default:  "\"Many\""
+  projectName:
+    type: STRING
+    default:  "\"XROCK\""
+  maturity:
+    type: STRING
+    default:  "\"UNDEFINED\""
+    allowed: [ "\"UNDEFINED\"", "\"INPROGRESS\"", "\"UNSTABLE\"", "\"TESTING\"", "\"STABLE\"" ]
+  defaultConfiguration:
+    type: JSON
+    default:   {}
+  data:
+    type: JSON
+    default:   {}
+  can_have_parts:
+    type: BOOLEAN
+    default: True
+  abstract:  # Abstract property means this is by its nature abstract, is_abstract() means this is abstract by not yet being fully implemented.
+    type: BOOLEAN
+    default: False
+relations:
+  interfaces:
+    type: has
+    other_classnames:
+      - Interface
+  # NOTE: Dynamic interfaces are a new concept and are not present in old, non-generated xtypes
+  dynamic_interfaces:
+    type: has
+    other_classnames:
+      - DynamicInterface
+  model:
+    type: subclass_of
+    other_classnames:
+      - ComponentModel
+  parts:
+    type: part_of_composition
+    other_classnames:
+      - Component
+    inverse: true
+    advanced_setter: true
+  abstracts:
+    type: implements
+    other_classnames:
+      - ComponentModel
+    advanced_setter: true
+  # This is the inverse of the 'abstracts' relation
+  implementations:
+    type: implements
+    other_classnames:
+      - ComponentModel
+    advanced_setter: true
+    inverse: true
+  external_references:
+    type: annotates
+    other_classnames:
+      - ExternalReference
+    inverse: True
+uri:
+  scheme: drock
+  root_path:  /
+  from:
+    - name: domain
+    - name: name
+    - name: version
+methods:
+  derive_domain_from_parts:
+    returns:
+      type: BOOLEAN
+    description: "This function derives the domain from it's parts. Mixing parts of different domains will make it an ASSEMBLY. Returns true if the domain could be derived"
+
+  get_part:
+    arguments:
+      - name: name
+        type: STRING
+    returns:
+      type: XTYPE(ComponentPtr)
+    description: "This function returns a part of an ComponentModel with a given name"
+
+  is_atomic:
+    arguments:
+      - name: throw_on_inconsistency
+        type: BOOLEAN
+        default: False
+    returns:
+      type: BOOLEAN
+    description: "Returns true if this ComponentModel hasn't any parts"
+
+  composed_of:
+    arguments:
+      - name: part
+        type: XTYPE(Component)
+    description: "This function adds a part to the ComponentModel"
+
+  disconnect_parts:
+    description: "Go to every part and its interfaces and call disconnect"
+
+  get_types:
+    const: True
+    returns:
+      type: VECTOR(XTYPE(ComponentModelPtr))
+    description: "Returns the direct superclasses of this model"
+
+  get_all_types:
+    const: True
+    returns:
+      type: MAP(STRING, XTYPE(ComponentModelPtr))
+    description: "Returns all the superclasses of this model (transitive closure over superclass_of relation)"
+
+  subclass_of:
+    arguments:
+      - name: superclass
+        type: XTYPE(ComponentModel)
+    description: "This function sets the superclass of the ComponentModel and updates the type property accordingly"
+
+  implements:
+    arguments:
+      - name: superclass
+        type: XTYPE(ComponentModel)
+    description: "This function states that this ComponentModel is a valid implementation of the given superclass. Throws if this is not the case. (see is_valid_implementation)"
+
+  is_abstract:
+    returns:
+      type: BOOLEAN
+    description: "Returns true when this ComponentModel is not yet fully implemented or this is abstract by it's nature (abstract property set to true)."
+
+  is_valid_implementation:
+    arguments:
+      - name: for_superclass
+        type: XTYPE(ComponentModel)
+    returns:
+      type: BOOLEAN
+    description: "This function checks whether this ComponentModel is a valid implementation of the abstract ComponentModel superclass."
+  
+  can_implement:
+    arguments:
+      - name: superclass
+        type: XTYPE(ComponentModel)
+    returns:
+      type: BOOLEAN
+    description: "This function checks whether this ComponentModel can implement superclass abstract ComponentModel."
+
+  get_abstracts:
+    const: True
+    returns:
+      type: VECTOR(XTYPE(ComponentModelPtr))
+    description: "Returns the direct abstract models for which this ComponentModel is an implementation"
+
+  get_implementations:
+    const: True
+    returns:
+      type: VECTOR(XTYPE(ComponentModelPtr))
+    description: "Returns the direct implementation models for which this ComponentModel is an abstract"
+
+  get_all_abstracts:
+    const: True
+    returns:
+      type: MAP(STRING, XTYPE(ComponentModelPtr))
+    description: "Returns all the abstract models for which this ComponentModel is an implementation (transitive closure over superclass_of relation of abstracts)"
+
+  is_implementing:
+    arguments:
+      - name: superclass
+        type: XTYPE(ComponentModel)
+    returns:
+      type: BOOLEAN
+    description: "Checks whether the given ComponentModel is member of the returned set by get_all_abstracts"
+
+  has:
+    overrides:
+      - arguments:
+        - name: interface
+          type: XTYPE(Interface)
+        description: "This function adds an interface to the ComponentModel"
+      - arguments:
+        - name: dynamic_interface
+          type: XTYPE(DynamicInterface)
+        description: "This function adds an dynamic interface to the ComponentModel"
+
+  get_interfaces:
+    arguments:
+      - name: with_type
+        type: XTYPE(InterfaceModel)
+        default: "nullptr"
+      - name: with_name
+        type: STRING
+        default: '""'
+    returns:
+      type: VECTOR(XTYPE(InterfacePtr))
+    description: "Returns all interfaces which match a given type (if set) and a given name (if set)."
+
+  remove_interface:
+    arguments:
+      - name: name
+        type: STRING
+        default: '""'
+    description: "This function removes interfaces by it's name"
+
+  find_nonmatching_part_interfaces:
+    returns:
+      type: MAP(XTYPE(InterfacePtr), VECTOR(XTYPE(InterfacePtr)))
+    description: "This functions resolves any interfaces of inner parts which do not match any of the parts' model interfaces and a list of possible future matches."
+
+  instantiate:
+    arguments:
+      - name: as_part_of_whole
+        type: XTYPE(ComponentModel)
+      - name: and_name
+        type: STRING
+        default: '""'
+      - name: with_empty_facts
+        type: BOOLEAN
+        default: false
+    returns:
+      type: XTYPE(ComponentPtr)
+    description: "This function creates a new component instance of this model and makes it part of the given component model"
+
+  build:
+    arguments:
+      - name: with_name
+        type: STRING
+      - name: select_implementation
+        type: FUNCTION(ComponentModelPtr(const ComponentModelPtr&, const std::vector<ComponentModelPtr>&))
+        default: "nullptr" # Has to be a nullptr, {} does not work with pybind11
+    returns:
+      type: XTYPE(ModulePtr)
+    description: "This function builds a new module out of the component model spec. It will also build ALL subcomponents."
+
+  export_to_basic_model:
+    const: True
+    returns:
+      type: STRING
+    description: "This method exports a component model to the DROCK BasicModel Json format"
+
+  import_from_basic_model:
+    static: True
+    arguments:
+      - name: serialized_model
+        type: STRING
+      - name: load_missing_component_model
+        type: FUNCTION(ComponentModelPtr(const nl::json&))
+    returns:
+      type: VECTOR(XTYPE(ComponentModelPtr))
+    description: "This method imports a component model from the DROCK BasicModel Json format"
+
+  annotate_with:
+    arguments:
+      - name: reference
+        type: XTYPE(ExternalReference)
+      - name: optional
+        type: BOOLEAN
+        default: true
+    description: "Annotates the ComponentModel with an optional or needed ExternalReference. Calls _ComponentModel::add_external_references internally"
+

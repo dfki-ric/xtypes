@@ -1,0 +1,605 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="392.38458mm"
+   height="248.50742mm"
+   viewBox="0 0 392.38459 248.50742"
+   version="1.1"
+   id="svg8"
+   inkscape:version="0.92.5 (2060ec1f9f, 2020-04-08)"
+   sodipodi:docname="template_interfaces.svg">
+  <defs
+     id="defs2" />
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="0.7"
+     inkscape:cx="365.9517"
+     inkscape:cy="384.26668"
+     inkscape:document-units="mm"
+     inkscape:current-layer="layer1"
+     showgrid="false"
+     inkscape:snap-global="false"
+     inkscape:window-width="1848"
+     inkscape:window-height="1016"
+     inkscape:window-x="72"
+     inkscape:window-y="27"
+     inkscape:window-maximized="1" />
+  <metadata
+     id="metadata5">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(42.740232,-56.969583)">
+    <rect
+       style="opacity:1;fill:#ffffff;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:1.16499996;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       id="rect916"
+       width="414.26187"
+       height="266.47321"
+       x="-54.457493"
+       y="49.587116" />
+    <flowRoot
+       xml:space="preserve"
+       id="flowRoot927"
+       style="font-style:normal;font-weight:normal;font-size:12px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none"
+       transform="scale(0.26458333)"><flowRegion
+         id="flowRegion929"
+         style="font-size:12px"><rect
+           id="rect931"
+           width="314.28571"
+           height="187.14281"
+           x="374.28571"
+           y="418.23398"
+           style="font-size:12px" /></flowRegion><flowPara
+         id="flowPara933" /></flowRoot>    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:4.23333311px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+       x="201.26642"
+       y="68.033859"
+       id="text953"><tspan
+         sodipodi:role="line"
+         id="tspan951"
+         x="201.26642"
+         y="68.033859"
+         style="font-size:4.23333311px;stroke-width:0.26458332">1. Instanitate ComponentModel of this task</tspan><tspan
+         sodipodi:role="line"
+         x="201.26642"
+         y="73.325523"
+         style="font-size:4.23333311px;stroke-width:0.26458332"
+         id="tspan955">  - GUI shows template Component</tspan><tspan
+         sodipodi:role="line"
+         x="201.26642"
+         y="78.617195"
+         style="font-size:4.23333311px;stroke-width:0.26458332"
+         id="tspan1226">  - It's possible to wire compatible ports to the template port </tspan><tspan
+         sodipodi:role="line"
+         x="201.26642"
+         y="83.908859"
+         style="font-size:4.23333311px;stroke-width:0.26458332"
+         id="tspan1228"> </tspan></text>
+    <g
+       transform="translate(100.51504,-24.003068)"
+       id="g890-6-9">
+      <g
+         id="g1054">
+        <rect
+           y="57.554298"
+           x="20.790905"
+           height="101.31082"
+           width="160.25746"
+           id="rect815"
+           style="opacity:1;fill:#e9ffc1;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1.16943157;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+           transform="translate(-100.51504,24.003068)" />
+        <text
+           id="text823"
+           y="68.324409"
+           x="39.876492"
+           style="font-style:normal;font-weight:normal;font-size:1.05833328px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+           xml:space="preserve"
+           transform="translate(-100.51504,24.003068)"><tspan
+             style="font-size:8.46666622px;stroke-width:0.26458332"
+             y="68.324409"
+             x="39.876492"
+             id="tspan821"
+             sodipodi:role="line">JointDispatcher</tspan></text>
+        <g
+           id="g840"
+           transform="translate(-100.51504,24.003068)">
+          <rect
+             style="opacity:1;fill:#c1fcff;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1.16499996;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+             id="rect825"
+             width="47.813984"
+             height="16.441963"
+             x="24.379465"
+             y="86.467255" />
+          <text
+             xml:space="preserve"
+             style="font-style:normal;font-weight:normal;font-size:4.58611107px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+             x="27.403498"
+             y="94.682594"
+             id="text925"><tspan
+               sodipodi:role="line"
+               x="27.403498"
+               y="94.682594"
+               id="tspan923"
+               style="stroke-width:0.26458332"><tspan
+                 x="27.403498"
+                 y="94.682594"
+                 style="font-size:4.58611107px;stroke-width:0.26458332"
+                 id="tspan921">Normal input port</tspan></tspan></text>
+        </g>
+        <g
+           id="g840-3"
+           transform="translate(5.6017706,24.09757)">
+          <rect
+             style="opacity:1;fill:#c1fcff;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1.16499996;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+             id="rect825-6"
+             width="47.813984"
+             height="16.441963"
+             x="24.379465"
+             y="86.467255" />
+          <text
+             xml:space="preserve"
+             style="font-style:normal;font-weight:normal;font-size:4.58611107px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+             x="26.345163"
+             y="94.682594"
+             id="text956"><tspan
+               sodipodi:role="line"
+               x="26.345163"
+               y="94.682594"
+               id="tspan954"
+               style="stroke-width:0.26458332"><tspan
+                 x="26.345163"
+                 y="94.682594"
+                 style="font-size:4.58611107px;stroke-width:0.26458332"
+                 id="tspan952">Normal output port</tspan></tspan></text>
+        </g>
+        <g
+           transform="translate(-99.5701,23.889661)"
+           id="g890">
+          <rect
+             style="opacity:1;fill:#c1daff;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1.16499996;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+             id="rect872"
+             width="55.184521"
+             height="17.764881"
+             x="23.434523"
+             y="131.44643" />
+          <text
+             xml:space="preserve"
+             style="font-style:normal;font-weight:normal;font-size:1.05833328px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+             x="25.135416"
+             y="138.91452"
+             id="text949"><tspan
+               sodipodi:role="line"
+               x="25.135416"
+               y="138.91452"
+               id="tspan943"
+               style="stroke-width:0.26458332"><tspan
+                 x="25.135416"
+                 y="138.91452"
+                 style="font-size:3.52777791px;stroke-width:0.26458332"
+                 id="tspan939">Dynamic inputs</tspan><tspan
+                 dx="0"
+                 x="52.727188"
+                 y="138.91452"
+                 style="font-size:3.52777791px;stroke-width:0.26458332"
+                 id="tspan941" /></tspan><tspan
+               sodipodi:role="line"
+               x="25.135416"
+               y="143.32425"
+               id="tspan947"
+               style="stroke-width:0.26458332"><tspan
+                 x="25.135416"
+                 y="143.32425"
+                 style="font-size:3.52777791px;stroke-width:0.26458332"
+                 id="tspan945">base::samples::Joints</tspan></tspan></text>
+        </g>
+        <g
+           id="g890-6"
+           transform="translate(-99.192121,1.4000861)">
+          <rect
+             style="opacity:1;fill:#c1daff;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1.16499996;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+             id="rect872-2"
+             width="55.184521"
+             height="17.764881"
+             x="23.434523"
+             y="131.44643" />
+          <text
+             xml:space="preserve"
+             style="font-style:normal;font-weight:normal;font-size:1.05833328px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+             x="25.135416"
+             y="138.91452"
+             id="text937"><tspan
+               sodipodi:role="line"
+               x="25.135416"
+               y="138.91452"
+               id="tspan931"
+               style="stroke-width:0.26458332"><tspan
+                 x="25.135416"
+                 y="138.91452"
+                 style="font-size:3.52777791px;stroke-width:0.26458332"
+                 id="tspan927">Dynamic inputs</tspan><tspan
+                 dx="0"
+                 x="52.727188"
+                 y="138.91452"
+                 style="font-size:3.52777791px;stroke-width:0.26458332"
+                 id="tspan929" /></tspan><tspan
+               sodipodi:role="line"
+               x="25.135416"
+               y="143.32425"
+               id="tspan935"
+               style="stroke-width:0.26458332"><tspan
+                 x="25.135416"
+                 y="143.32425"
+                 style="font-size:3.52777791px;stroke-width:0.26458332"
+                 id="tspan933">base::samples::Time</tspan></tspan></text>
+        </g>
+        <rect
+           style="opacity:1;fill:#c1daff;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1.23577654;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+           id="rect872-2-3"
+           width="62.093388"
+           height="17.764881"
+           x="16.525658"
+           y="131.44643" />
+        <text
+           xml:space="preserve"
+           style="font-style:normal;font-weight:normal;font-size:1.05833328px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+           x="19.314583"
+           y="138.91452"
+           id="text1016"><tspan
+             sodipodi:role="line"
+             x="19.314583"
+             y="138.91452"
+             id="tspan1010"
+             style="stroke-width:0.26458332"><tspan
+               x="19.314583"
+               y="138.91452"
+               style="font-size:3.52777791px;stroke-width:0.26458332"
+               id="tspan1006">Dynamic outputs</tspan><tspan
+               dx="0"
+               x="49.467781"
+               y="138.91452"
+               style="font-size:3.52777791px;stroke-width:0.26458332"
+               id="tspan1008" /></tspan><tspan
+             sodipodi:role="line"
+             x="19.314583"
+             y="143.32425"
+             id="tspan1014"
+             style="stroke-width:0.26458332"><tspan
+               x="19.314583"
+               y="143.32425"
+               style="font-size:3.52777791px;stroke-width:0.26458332"
+               id="tspan1012">base::command::JointCommands</tspan></tspan></text>
+      </g>
+      <g
+         transform="translate(1.4445933,124.91287)"
+         id="g1054-1">
+        <rect
+           y="81.614883"
+           x="-79.666618"
+           height="122.31008"
+           width="160.14243"
+           id="rect815-8"
+           style="opacity:1;fill:#e9ffc1;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1.28446448;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1" />
+        <text
+           id="text823-7"
+           y="68.324409"
+           x="39.876492"
+           style="font-style:normal;font-weight:normal;font-size:1.05833328px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+           xml:space="preserve"
+           transform="translate(-100.51504,24.003068)"><tspan
+             style="font-size:8.46666622px;stroke-width:0.26458332"
+             y="68.324409"
+             x="39.876492"
+             id="tspan821-9"
+             sodipodi:role="line">JointDispatcher</tspan></text>
+        <g
+           id="g840-2"
+           transform="translate(-100.51504,24.003068)">
+          <rect
+             style="opacity:1;fill:#c1fcff;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1.16499996;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+             id="rect825-0"
+             width="47.813984"
+             height="16.441963"
+             x="24.379465"
+             y="86.467255" />
+          <text
+             xml:space="preserve"
+             style="font-style:normal;font-weight:normal;font-size:4.58611107px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+             x="27.403498"
+             y="94.682594"
+             id="text962"><tspan
+               sodipodi:role="line"
+               x="27.403498"
+               y="94.682594"
+               id="tspan960"
+               style="stroke-width:0.26458332"><tspan
+                 x="27.403498"
+                 y="94.682594"
+                 style="font-size:4.58611107px;stroke-width:0.26458332"
+                 id="tspan958">Normal input port</tspan></tspan></text>
+        </g>
+        <g
+           id="g840-3-2"
+           transform="translate(5.6017706,24.09757)">
+          <rect
+             style="opacity:1;fill:#c1fcff;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1.16499996;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+             id="rect825-6-2"
+             width="47.813984"
+             height="16.441963"
+             x="24.379465"
+             y="86.467255" />
+          <text
+             xml:space="preserve"
+             style="font-style:normal;font-weight:normal;font-size:4.58611107px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+             x="26.345163"
+             y="94.682594"
+             id="text968"><tspan
+               sodipodi:role="line"
+               x="26.345163"
+               y="94.682594"
+               id="tspan966"
+               style="stroke-width:0.26458332"><tspan
+                 x="26.345163"
+                 y="94.682594"
+                 style="font-size:4.58611107px;stroke-width:0.26458332"
+                 id="tspan964">Normal output port</tspan></tspan></text>
+        </g>
+        <g
+           transform="translate(-99.5701,50.348011)"
+           id="g890-61">
+          <rect
+             style="opacity:1;fill:#c1daff;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1.16499996;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+             id="rect872-29"
+             width="55.184521"
+             height="17.764881"
+             x="23.434523"
+             y="131.44643" />
+          <text
+             xml:space="preserve"
+             style="font-style:normal;font-weight:normal;font-size:1.05833328px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+             x="25.135416"
+             y="138.91452"
+             id="text1004"><tspan
+               sodipodi:role="line"
+               x="25.135416"
+               y="138.91452"
+               id="tspan998"
+               style="stroke-width:0.26458332"><tspan
+                 x="25.135416"
+                 y="138.91452"
+                 style="font-size:3.52777791px;stroke-width:0.26458332"
+                 id="tspan994">Dynamic inputs</tspan><tspan
+                 dx="0"
+                 x="52.727188"
+                 y="138.91452"
+                 style="font-size:3.52777791px;stroke-width:0.26458332"
+                 id="tspan996" /></tspan><tspan
+               sodipodi:role="line"
+               x="25.135416"
+               y="143.32425"
+               id="tspan1002"
+               style="stroke-width:0.26458332"><tspan
+                 x="25.135416"
+                 y="143.32425"
+                 style="font-size:3.52777791px;stroke-width:0.26458332"
+                 id="tspan1000">base::samples::Joints</tspan></tspan></text>
+        </g>
+        <g
+           id="g890-6-5"
+           transform="translate(-99.192121,1.9292528)">
+          <rect
+             style="opacity:1;fill:#c1daff;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1.16499996;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+             id="rect872-2-0"
+             width="55.184521"
+             height="17.764881"
+             x="23.434523"
+             y="131.44643" />
+          <text
+             xml:space="preserve"
+             style="font-style:normal;font-weight:normal;font-size:1.05833328px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+             x="25.135416"
+             y="138.91452"
+             id="text992"><tspan
+               sodipodi:role="line"
+               x="25.135416"
+               y="138.91452"
+               id="tspan986"
+               style="stroke-width:0.26458332"><tspan
+                 x="25.135416"
+                 y="138.91452"
+                 style="font-size:3.52777791px;stroke-width:0.26458332"
+                 id="tspan982">Dynamic inputs</tspan><tspan
+                 dx="0"
+                 x="52.727188"
+                 y="138.91452"
+                 style="font-size:3.52777791px;stroke-width:0.26458332"
+                 id="tspan984" /></tspan><tspan
+               sodipodi:role="line"
+               x="25.135416"
+               y="143.32425"
+               id="tspan990"
+               style="stroke-width:0.26458332"><tspan
+                 x="25.135416"
+                 y="143.32425"
+                 style="font-size:3.52777791px;stroke-width:0.26458332"
+                 id="tspan988">base::samples::Time</tspan></tspan></text>
+        </g>
+        <rect
+           style="opacity:1;fill:#c1daff;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1.23577654;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+           id="rect872-2-3-2"
+           width="62.093388"
+           height="17.764881"
+           x="16.525658"
+           y="131.44643" />
+        <text
+           xml:space="preserve"
+           style="font-style:normal;font-weight:normal;font-size:1.05833328px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+           x="19.314583"
+           y="138.91452"
+           id="text980"><tspan
+             sodipodi:role="line"
+             x="19.314583"
+             y="138.91452"
+             id="tspan974"
+             style="stroke-width:0.26458332"><tspan
+               x="19.314583"
+               y="138.91452"
+               style="font-size:3.52777791px;stroke-width:0.26458332"
+               id="tspan970">Dynamic outputs</tspan><tspan
+               dx="0"
+               x="49.467781"
+               y="138.91452"
+               style="font-size:3.52777791px;stroke-width:0.26458332"
+               id="tspan972" /></tspan><tspan
+             sodipodi:role="line"
+             x="19.314583"
+             y="143.32425"
+             id="tspan978"
+             style="stroke-width:0.26458332"><tspan
+               x="19.314583"
+               y="143.32425"
+               style="font-size:3.52777791px;stroke-width:0.26458332"
+               id="tspan976">base::command::JointCommands</tspan></tspan></text>
+        <g
+           id="g840-2-4"
+           transform="matrix(1.1215884,0,0,0.9959674,-103.06817,65.055142)">
+          <rect
+             style="opacity:1;fill:#c1fcff;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1.16499996;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+             id="rect825-0-7"
+             width="47.813984"
+             height="16.441963"
+             x="24.379465"
+             y="86.467255" />
+        </g>
+        <text
+           xml:space="preserve"
+           style="font-style:normal;font-weight:normal;font-size:4.23333311px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+           x="-74.687393"
+           y="157.57648"
+           id="text1214"><tspan
+             sodipodi:role="line"
+             id="tspan1212"
+             x="-74.687393"
+             y="157.57648"
+             style="stroke-width:0.26458332">User defined input port</tspan><tspan
+             sodipodi:role="line"
+             x="-74.687393"
+             y="162.86815"
+             style="stroke-width:0.26458332"
+             id="tspan1216">base::samples::Time</tspan></text>
+      </g>
+      <text
+         xml:space="preserve"
+         style="font-style:normal;font-weight:normal;font-size:4.23333311px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+         x="96.475082"
+         y="222.42972"
+         id="text1178"><tspan
+           sodipodi:role="line"
+           id="tspan1176"
+           x="96.475082"
+           y="222.42972"
+           style="stroke-width:0.26458332">2. User defines that the task will have a specific dynamic input/output</tspan><tspan
+           sodipodi:role="line"
+           x="96.475082"
+           y="227.72139"
+           style="stroke-width:0.26458332"
+           id="tspan1180">    with a name the user defines by right-clicking the template port</tspan><tspan
+           sodipodi:role="line"
+           x="96.475082"
+           y="233.01305"
+           style="stroke-width:0.26458332"
+           id="tspan1218">   - the newly created port holds  a relation to the template port</tspan><tspan
+           sodipodi:role="line"
+           x="96.475082"
+           y="238.30472"
+           style="stroke-width:0.26458332"
+           id="tspan1230">   - when the user instantiates a templated port the user can define</tspan><tspan
+           sodipodi:role="line"
+           x="96.475082"
+           y="243.59639"
+           style="stroke-width:0.26458332"
+           id="tspan1232">     which edges should be connected to the new port</tspan><tspan
+           sodipodi:role="line"
+           x="96.475082"
+           y="248.88805"
+           style="stroke-width:0.26458332"
+           id="tspan1234">   - later on we can check if all edges to the template port have been</tspan><tspan
+           sodipodi:role="line"
+           x="96.475082"
+           y="254.17972"
+           style="stroke-width:0.26458332"
+           id="tspan1236">     assigned to a port instance</tspan><tspan
+           sodipodi:role="line"
+           x="96.475082"
+           y="259.47137"
+           style="stroke-width:0.26458332"
+           id="tspan1238">   - when a port instance is removed, the edge can fall back to the</tspan><tspan
+           sodipodi:role="line"
+           x="96.475082"
+           y="264.76306"
+           style="stroke-width:0.26458332"
+           id="tspan1240">     template port</tspan><tspan
+           sodipodi:role="line"
+           x="96.475082"
+           y="270.05472"
+           style="stroke-width:0.26458332"
+           id="tspan1261">   - it might be possible to provide a default name for a new instantiated</tspan><tspan
+           sodipodi:role="line"
+           x="96.475082"
+           y="275.34637"
+           style="stroke-width:0.26458332"
+           id="tspan1263">     port from the incoming connection/ using the same method</tspan><tspan
+           sodipodi:role="line"
+           x="96.475082"
+           y="280.63806"
+           style="stroke-width:0.26458332"
+           id="tspan1265">     ports for connections that have not yet been assigned can be</tspan><tspan
+           sodipodi:role="line"
+           x="96.475082"
+           y="285.92972"
+           style="stroke-width:0.26458332"
+           id="tspan1267">     created automatically</tspan></text>
+      <path
+         style="fill:none;stroke:#000000;stroke-width:0.26458332px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+         d="m -137.17873,104.04474 63.499999,39.30952 -60.476189,18.8988"
+         id="path1220"
+         inkscape:connector-curvature="0"
+         sodipodi:nodetypes="ccc" />
+      <path
+         style="fill:none;stroke:#000000;stroke-width:0.26458332px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+         d="m -142.84837,234.44652 72.571424,32.88393"
+         id="path1222"
+         inkscape:connector-curvature="0"
+         sodipodi:nodetypes="cc" />
+      <path
+         style="fill:none;stroke:#000000;stroke-width:0.26458332px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+         d="m -143.22635,299.8364 69.169643,-15.49702"
+         id="path1224"
+         inkscape:connector-curvature="0" />
+    </g>
+  </g>
+</svg>

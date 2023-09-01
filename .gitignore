@@ -1,0 +1,7 @@
+.idea/
+*/__pycache__/
+*.pyc
+/build/
+skeleton_files/*
+**dist
+**xtypes.egg-info

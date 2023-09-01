@@ -1,0 +1,70 @@
+name: Component
+properties:
+  name:
+    type: STRING
+    default: "\"UNKNOWN\""
+  alias:
+    type: STRING
+    default: "\"\""
+  configuration:
+    type: JSON
+    default:  {}
+relations:
+  interfaces:
+    type: has
+    other_classnames:
+      - Interface
+  model:
+    type: instance_of
+    other_classnames:
+      - ComponentModel
+    advanced_setter: true
+  whole:
+    type: part_of_composition
+    other_classnames:
+      - ComponentModel
+    advanced_setter: true
+uri:
+  scheme: drock
+  root_path:  /
+  from:
+    - name: whole
+    - name: name
+
+methods:
+  get_type:
+    const: True
+    returns:
+      type: XTYPE(ComponentModelPtr)
+    description: "Returns the model of which this component has been instantiated from"
+
+  instance_of:
+    arguments:
+      - name: model
+        type: XTYPE(ComponentModel)
+    description: "This function marks the component as instance of the given component model"
+
+  part_of:
+    arguments:
+      - name: whole
+        type: XTYPE(ComponentModel)
+    description: "This function adds the component as a part of the given component model"
+
+  has:
+    arguments:
+      - name: interface
+        type: XTYPE(Interface)
+    description: "This function adds an interface to the component"
+
+  get_interface:
+    arguments:
+      - name: name
+        type: STRING
+    returns:
+      type: XTYPE(InterfaceCPtr)
+    description: "This function returns an interface of the component with a specific name. If not found it will return a null reference"
+
+  find_nonmatching_interfaces:
+    returns:
+      type: MAP(XTYPE(InterfacePtr), VECTOR(XTYPE(InterfacePtr)))
+    description: "Try to match every interface to a model interface by name and type. If such a match cannot be made the interface is added to the list returned together with type matching interfaces."

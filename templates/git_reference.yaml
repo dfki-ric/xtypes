@@ -1,0 +1,74 @@
+name: GitReference
+inherit: ExternalReference
+properties:
+  revision_type:
+    type: STRING
+    default:  "\"BRANCH\""
+    allowed: ["\"BRANCH\"", "\"TAG\"", "\"COMMIT\""]
+  revision_name:
+    type: STRING
+    default: "\"DEFAULT\""
+relations: {}
+methods:
+  create_repository:
+    arguments:
+      # url:
+      #   type: STRING
+      - name: local_dir
+        type: STRING
+        default: '"."'
+      - name: username
+        type: STRING
+        default: '""'
+      - name: password
+        type: STRING
+        default: '""'
+    returns:
+      type: JSON
+    description: "This function creates a new GIT repository"
+
+  checkout_repository:
+    arguments:
+      - name: local_dir
+        type: STRING
+        default: '"."'
+      - name: username
+        type: STRING
+        default: '""'
+      - name: password
+        type: STRING
+        default: '""'
+      - name: use_https
+        type: BOOLEAN
+        default: True
+      - name: only_clone
+        type: BOOLEAN
+        default: False
+    returns:
+      type: JSON
+    description: "This function checks out an existing GIT repository from remote"
+
+  update_repository:
+    arguments:
+      - name: new_files
+        type: VECTOR(STRING)
+        default: []
+      - name: custom_message
+        type: STRING
+        default: '""'
+    returns:
+      type: JSON
+    description: "This function updates an existing GIT repository"
+
+  convert_url_to_https:
+    static: true
+    arguments:
+      - name: url
+        type: STRING
+      - name: username
+        type: STRING
+      - name: password
+        type: STRING
+    returns:
+      type: STRING
+    description: "This method takes a GIT url and converts it to an HTTPS url"

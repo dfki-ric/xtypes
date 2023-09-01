@@ -1,0 +1,14 @@
+name: AutoprojReference
+inherit: GitReference
+properties:
+  package_name:
+    type: STRING
+    default: "\"UNKNOWN\""
+  package_set_name:
+    type: STRING
+    default: "\"UNKNOWN\""
+  package_set:
+    type: JSON
+    default:  {}
+relations: {}
+methods: {}

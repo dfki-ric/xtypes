@@ -1,0 +1,70 @@
+# This template specifies a so-called Module
+# A module is a physically existing component, whereas a component is only a logical entity
+# Basic example:
+# let CM be a component model with component parts x,y,z
+# if we want to build CM, we create a module M which has module parts x,y,z
+# if x,y,z have parts as well, they also have to be instantiated as modules (deep instantiation)
+
+name: Module
+inherit: Component
+properties:
+  # NOTE: Although Component already defines this property, we need to redefine it to be usable in 'uri' section below
+  name:
+    type: STRING
+    default: "\"UNKNOWN\""
+relations:
+  # NOTE: Although Component already defines this relation, we need to redefine it to be usable in 'uri' section below
+  model:
+    type: instance_of
+    other_classnames:
+      - ComponentModel
+  whole:
+    type: part_of_composition
+    other_classnames:
+      - Module
+    advanced_setter: true
+  parts:
+    type: part_of_composition
+    other_classnames:
+      - Module
+    inverse: true
+uri:
+  scheme: modkom
+  root_path: /
+  from:
+    # NOTE: The whole specification is optional (e.g. the root module does not necessarily belong to a composition)
+    - name: whole
+      required: False
+    - name: model
+    - name: name
+methods:
+  is_atomic:
+    returns:
+      type: BOOLEAN
+    description: "Returns true if this Module hasn't any parts"
+  get_part:
+    arguments:
+      - name: name
+        type: STRING
+    returns:
+      type: XTYPE(ModulePtr)
+    description: "Search and return a part of the module with the given name"
+  part_of:
+    arguments:
+      - name: whole
+        type: XTYPE(Module)
+    description: "This function marks the module as being part of another module"
+  apply_global_variables:
+    arguments:
+      - name: global_variables
+        type: JSON  # MAP(STRING, JSON)
+        default: {}
+    description: "This functions will go through this Module and it's sub-Modules and resolve the global_variables in there configuration"
+  get_global_variables:
+    arguments:
+      - name: global_variables
+        type: JSON  # MAP(STRING, JSON)
+        default: {}
+    returns:
+      type: JSON
+    description: "Merges the global variables defined on this Module level into the given global_variables without overriding them, and returns them"

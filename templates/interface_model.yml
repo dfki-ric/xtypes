@@ -1,0 +1,82 @@
+name: InterfaceModel
+properties:
+  name:
+    type: STRING
+    default: "\"UNKNOWN\""
+  domain:
+    type: STRING
+    default:  "\"NOT_SET\""
+    allowed: [ "\"NOT_SET\"", "\"SOFTWARE\"", "\"MECHANICS\"", "\"COMPUTATION\"", "\"ELECTRONICS\"", "\"BEHAVIOR\"", "\"ASSEMBLY\""]
+  direction:
+    type: STRING
+    default:  "\"DIRECTION_NOT_SET\""
+    allowed: [ "\"DIRECTION_NOT_SET\"", "\"INCOMING\"", "\"OUTGOING\"", "\"BIDIRECTIONAL\"" ]
+  multiplicity:
+    type: STRING
+    default:  "\"MULTIPLICITY_NOT_SET\""
+    allowed: [ "\"MULTIPLICITY_NOT_SET\"", "\"ONE\"", "\"N\"" ]
+  data:
+    type: JSON
+    default:   {}
+relations:
+  model:
+    type: subclass_of
+    other_classnames:
+      - InterfaceModel
+
+uri:
+  scheme: drock
+  root_path:  /
+  from:
+    - name: domain
+    - name: name
+
+methods:
+  instantiate:
+    arguments:
+      - name: for_component_model
+        type: XTYPE(ComponentModel)
+      - name: name
+        type: STRING
+        default: '""'
+      - name: direction
+        type: STRING
+        default: "\"DIRECTION_NOT_SET\""
+      - name: multiplicity
+        type: STRING
+        default: "\"MULTIPLICITY_NOT_SET\""
+      - name: with_empty_facts
+        type: BOOLEAN
+        default: false
+    returns:
+      type: XTYPE(InterfacePtr)
+    description: "This function instantiates a new interface instance for a component model"
+
+  instantiate_dynamic:
+    arguments:
+      - name: for_component_model
+        type: XTYPE(ComponentModel)
+      - name: direction
+        type: STRING
+        default: "\"DIRECTION_NOT_SET\""
+      - name: multiplicity
+        type: STRING
+        default: "\"MULTIPLICITY_NOT_SET\""
+      - name: with_empty_facts
+        type: BOOLEAN
+        default: false
+    returns:
+      type: XTYPE(DynamicInterfacePtr)
+    description: "This function instantiates a new dynamic interface instance for a component model"
+
+  get_types:
+    const: True
+    returns:
+      type: VECTOR(XTYPE(InterfaceModelPtr))
+    description: "Returns all the superclasses of this model (transitive closure over superclass_of relation)"
+
+  subclass_of:
+    arguments:
+      - name: superclass
+        type: XTYPE(InterfaceModel)
+    description: "This function sets the superclass of the InterfaceModel"

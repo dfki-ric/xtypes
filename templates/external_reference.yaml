@@ -1,0 +1,40 @@
+name: ExternalReference
+properties:
+  name:
+    type: STRING
+    default: "\"UNKNOWN\""
+  description:
+    type: STRING
+    default:  "\"NOT_SET\""
+  remote_url:
+    type: STRING
+    default: "\"UNKNOWN\""
+  read_only:
+    type: BOOLEAN
+    default: True
+  content_list: # List of files and their semantic type (example: {"files": [{"type": "icon", "path": "some/path/foo.png"}]})
+    type: JSON
+    default: {}
+relations:
+  annotates:
+    type: annotates
+    other_classnames:
+      - ComponentModel
+methods:
+  load:
+    arguments:
+      - name: local_dir
+        type: STRING
+        default: '"."'
+    returns:
+      type: JSON
+    description: "This function loads the remote content to local directory."
+
+  store:
+    arguments:
+      - name: local_dir
+        type: STRING
+        default: '"."'
+    description: "This function stores the local content to the remote_url"
+
+ 

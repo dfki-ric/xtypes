@@ -1,0 +1,66 @@
+name: DynamicInterface
+properties:
+  direction:
+    type: STRING
+    default:  "\"DIRECTION_NOT_SET\""
+    allowed: [ "\"DIRECTION_NOT_SET\"", "\"INCOMING\"", "\"OUTGOING\"", "\"BIDIRECTIONAL\"" ]
+  multiplicity:
+    type: STRING
+    default:  "\"MULTIPLICITY_NOT_SET\""
+    allowed: [ "\"MULTIPLICITY_NOT_SET\"", "\"ONE\"", "\"N\"" ]
+  data:
+    type: JSON
+    default:   {}
+relations:
+  model:
+    type: instance_of
+    other_classnames:
+      - InterfaceModel
+  parent:
+    type: has
+    other_classnames:
+      - ComponentModel
+    inverse: true
+uri:
+  scheme: drock
+  root_path:  /
+  from:
+    - name: parent
+    - name: model
+    - name: direction
+methods:
+  get_domain:
+    description: "This function returns the domain of the interface"
+    returns:
+      type: STRING
+
+  get_type:
+    const: True
+    returns:
+      type: XTYPE(InterfaceModelPtr)
+    description: "Returns the model of which this interface has been instantiated from"
+
+  instance_of:
+    arguments:
+      - name: model
+        type: XTYPE(InterfaceModel)
+    description: "This function adds an instance to the InterfaceModel"
+
+  instantiate:
+    arguments:
+      - name: for_component
+        type: XTYPE(Component)
+      - name: name
+        type: STRING
+      - name: direction
+        type: STRING
+        default: "\"DIRECTION_NOT_SET\""
+      - name: multiplicity
+        type: STRING
+        default: "\"MULTIPLICITY_NOT_SET\""
+      - name: with_empty_facts
+        type: BOOLEAN
+        default: false
+    returns:
+      type: XTYPE(InterfacePtr)
+    description: "This function instantiates a new instance of the dynamic interface for a component"
