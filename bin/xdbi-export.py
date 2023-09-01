@@ -37,35 +37,36 @@ def main():
 
     p = os.path.abspath(args.export_path)
     print(f"Export path set to {p}")
-    recursion_limit=args.max_depth
-    print(f"Recursion depth limited to {recursion_limit}")
+    max_depth=args.max_depth
+    print(f"Max depth is {max_depth}")
     xtype_uri = args.uri
-    xtypes = dbi.find(classname = args.classname, properties={'uri':xtype_uri}, search_depth=recursion_limit)
-    if len(xtypes) < 1:
+    xtype = dbi.load(uri=xtype_uri, classname = args.classname)
+    if not xtype:
         print(f"Xtype with URI {xtype_uri} not found")
         sys.exit(2)
-    for xtype in xtypes:
-        print(f"Exporting Xtype with URI {xtype_uri}")
-        try:
-            export_list = xtype.export_to(recursion_limit=recursion_limit, export_relation_properties = True)
-        except:
-            print(f"Failed. Try to increase recursion limit")
-            sys.exit(3)
-        if xtype_uri not in export_list:
-            print(f"Failed to export {xtype_uri}. Not in {export_list}.")
-            sys.exit(4)
-        for export_uri, export_content in export_list.items():
-            file_name = os.path.join(p, f"{export_content['uuid']}.json")
+
+    print(f"Exporting Xtype with URI {xtype_uri}")
+    try:
+        export_list = xtype.export_to(max_depth=max_depth)
+    except:
+        print(f"Failed. Try to increase max_depth")
+        sys.exit(3)
+    if xtype_uri not in export_list:
+        print(f"Failed to export {xtype_uri}. Not in {export_list}.")
+        sys.exit(4)
+    for export_uri, export_content in export_list.items():
+        file_name = os.path.join(p, f"{export_content['uuid']}.json")
+        print(f"File {file_name} exists. Perform JSON merge")
+        if os.path.exists(file_name):
+            # On file collision, we have to perform a merge
+            # TODO: Where is the merge? Do we need it?
             print(f"File {file_name} exists. Perform JSON merge")
-            if os.path.exists(file_name):
-                # On file collision, we have to perform a merge
-                print(f"File {file_name} exists. Perform JSON merge")
-                with open(file_name, 'r') as in_file:
-                    old_dict = json.loads(in_file.read())
-                    print(f"Data from Old file: {old_dict}")
-            with open(file_name, 'w') as out_file:
-                json.dump(export_content, out_file)
-            print(f"Exported {export_content['uri']} to {file_name}")
+            with open(file_name, 'r') as in_file:
+                old_dict = json.loads(in_file.read())
+                print(f"Data from Old file: {old_dict}")
+        with open(file_name, 'w') as out_file:
+            json.dump(export_content, out_file)
+        print(f"Exported {export_content['uri']} to {file_name}")
 
     if successful:
         script_name = sys.argv[0]

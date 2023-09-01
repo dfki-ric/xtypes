@@ -20,10 +20,12 @@ using namespace xtypes;
 
 TEST_CASE("Test InterfaceModel class interface", "InterfaceModel")
 {
+    XTypeRegistryPtr pr = std::make_shared<ProjectRegistry>();
+
     SECTION("instantiate")
     {
-        ComponentModelPtr cm = std::make_shared<ComponentModel>();
-        InterfaceModelPtr im = std::make_shared<InterfaceModel>();
+        ComponentModelPtr cm = pr->instantiate<ComponentModel>();
+        InterfaceModelPtr im = pr->instantiate<InterfaceModel>();
         InterfacePtr a = im->instantiate(cm, "a");
         REQUIRE(a != nullptr);
         REQUIRE(a->get_name() == "a");
@@ -31,12 +33,15 @@ TEST_CASE("Test InterfaceModel class interface", "InterfaceModel")
         REQUIRE(b->get_name() == "b");
         REQUIRE(b != nullptr);
         REQUIRE(a->uri() != b->uri());
+        REQUIRE(cm->get_facts("interfaces").size() == 2);
     }
+    
+    pr->clear();
 
     SECTION("instantiate_dynamic")
     {
-        ComponentModelPtr cm = std::make_shared<ComponentModel>();
-        InterfaceModelPtr im = std::make_shared<InterfaceModel>();
+        ComponentModelPtr cm = pr->instantiate<ComponentModel>();
+        InterfaceModelPtr im = pr->instantiate<InterfaceModel>();
         im->set_name("some type");
         DynamicInterfacePtr a = im->instantiate_dynamic(cm);
         REQUIRE(a != nullptr);
@@ -49,30 +54,41 @@ TEST_CASE("Test InterfaceModel class interface", "InterfaceModel")
 
 TEST_CASE("Test Interface class interface", "Interface")
 {
+    XTypeRegistryPtr pr = std::make_shared<ProjectRegistry>();
+
     SECTION("alias_of")
     {
-        InterfacePtr interface = std::make_shared<Interface>();
-        InterfacePtr interface1 = std::make_shared<Interface>();
-        interface->add_original(interface1);
-        REQUIRE(interface->get_facts("original").size() == 1);
+        InterfaceModelPtr im = pr->instantiate<InterfaceModel>();
+        ComponentModelPtr cm = pr->instantiate<ComponentModel>();
+        InterfacePtr i = im->instantiate(cm,  "a",  "DIRECTION_NOT_SET", "MULTIPLICITY_NOT_SET", true);
+        InterfacePtr i1 = im->instantiate(cm, "b", "DIRECTION_NOT_SET", "MULTIPLICITY_NOT_SET", true);
+        i->add_original(i1);
+        REQUIRE(i->get_facts("original").size() == 1);
     }
+
+    pr->clear();
 
     SECTION("child_of")
     {
-        XTypePtr xtype = std::make_shared<XType>();
-        InterfacePtr interface = std::make_shared<Interface>();
-        ComponentModelPtr component_model = std::make_shared<ComponentModel>();
+        XTypePtr xtype = pr->instantiate<XType>();
+        InterfacePtr interface = pr->instantiate<Interface>();
+        ComponentModelPtr component_model = pr->instantiate<ComponentModel>();
         REQUIRE_THROWS(interface->child_of(xtype));
         interface->child_of(component_model);
         REQUIRE(interface->get_facts("parent").size() == 1);
     }
 
     // TODO: instance_of(const InterfaceModelPtr model);
+    
+    pr->clear();
+
+    // TODO: is_connectable_to(const InterfacePtr other);
+    // TODO: is_compatible_with(const InterfacePtr other);
 
     SECTION("connected_to/disconnect")
     {
-        InterfaceModelPtr im = std::make_shared<InterfaceModel>();
-        ComponentModelPtr cm = std::make_shared<ComponentModel>();
+        InterfaceModelPtr im = pr->instantiate<InterfaceModel>();
+        ComponentModelPtr cm = pr->instantiate<ComponentModel>();
         InterfacePtr i = im->instantiate(cm,  "a",  "DIRECTION_NOT_SET", "MULTIPLICITY_NOT_SET", true);
         InterfacePtr i1 = im->instantiate(cm, "b", "DIRECTION_NOT_SET", "MULTIPLICITY_NOT_SET", true);
         InterfacePtr i2 = im->instantiate(cm, "c", "DIRECTION_NOT_SET", "MULTIPLICITY_NOT_SET", true);
@@ -87,16 +103,15 @@ TEST_CASE("Test Interface class interface", "Interface")
         REQUIRE(i1->get_facts("from_others").size() == 0);
         REQUIRE(i2->get_facts("from_others").size() == 0);
     }
-
-    // TODO: is_connectable_to(const InterfacePtr other);
-    // TODO: is_compatible_with(const InterfacePtr other);
+    
+    pr->clear();
 
     SECTION("get_dynamic_interface")
     {
         // First setup a component model with a dynamic interface
-        ComponentModelPtr cm = std::make_shared<ComponentModel>();
+        ComponentModelPtr cm = pr->instantiate<ComponentModel>();
         cm->set_all_unknown_facts_empty();
-        InterfaceModelPtr im = std::make_shared<InterfaceModel>();
+        InterfaceModelPtr im = pr->instantiate<InterfaceModel>();
         im->set_name("some type");
         im->set_all_unknown_facts_empty();
         DynamicInterfacePtr a = im->instantiate_dynamic(cm);
@@ -104,9 +119,10 @@ TEST_CASE("Test Interface class interface", "Interface")
         REQUIRE(a->get_type()->get_property("name") == im->get_name());
         REQUIRE(cm->get_facts("dynamic_interfaces").size() == 1);
         // Then instantiate a component
-        ComponentModelPtr cm2 = std::make_shared<ComponentModel>();
+        ComponentModelPtr cm2 = pr->instantiate<ComponentModel>();
+        cm2->set_name("a whole");
         cm2->set_all_unknown_facts_empty();
-        ComponentPtr c = cm->instantiate(cm2, "X");
+        ComponentPtr c = cm->instantiate(cm2, "X", false);
         REQUIRE(!c->has_facts("interfaces"));
         // Dynamic interfaces have to be instantiated 'by hand'
         // TODO: At component or component model level there should be nice functions to get dynamic interfaces
@@ -125,17 +141,22 @@ TEST_CASE("Test Interface class interface", "Interface")
 
 TEST_CASE("Test Component class interface", "Component")
 {
+    XTypeRegistryPtr pr = std::make_shared<ProjectRegistry>();
+
     // TODO: instance_of(ComponentModelCPtr model)
     // TODO: part_of(ComponentModelCPtr whole)
     // TODO: has(InterfaceCPtr interface)
+
     SECTION("get_interface")
     {
-        InterfaceModelPtr im = std::make_shared<InterfaceModel>();
-        ComponentModelPtr cm = std::make_shared<ComponentModel>();
+        InterfaceModelPtr im = pr->instantiate<InterfaceModel>();
+        ComponentModelPtr cm = pr->instantiate<ComponentModel>();
         InterfacePtr i = im->instantiate(cm, "a");
         InterfacePtr i1 = im->instantiate(cm, "b");
         InterfacePtr i2 = im->instantiate(cm, "c");
-        ComponentModelPtr cm2 = std::make_shared<ComponentModel>();
+        REQUIRE(cm->get_facts("interfaces").size() == 3);
+        ComponentModelPtr cm2 = pr->instantiate<ComponentModel>();
+        cm2->set_name("a whole");
         ComponentPtr c = cm->instantiate(cm2, "X");
         REQUIRE(c->get_facts("interfaces").size() == 3);
         REQUIRE(c->get_interface("a")->get_name() == i->get_name());
@@ -144,14 +165,17 @@ TEST_CASE("Test Component class interface", "Component")
         REQUIRE(c->get_interface("d") == nullptr);
     }
 
+    pr->clear();
+
     SECTION("find_nonmatching_interfaces")
     {
-        InterfaceModelPtr im = std::make_shared<InterfaceModel>();
-        ComponentModelPtr cm = std::make_shared<ComponentModel>();
+        InterfaceModelPtr im = pr->instantiate<InterfaceModel>();
+        ComponentModelPtr cm = pr->instantiate<ComponentModel>();
         InterfacePtr i = im->instantiate(cm, "a");
         InterfacePtr i1 = im->instantiate(cm, "b");
         InterfacePtr i2 = im->instantiate(cm, "c");
-        ComponentModelPtr cm2 = std::make_shared<ComponentModel>();
+        ComponentModelPtr cm2 = pr->instantiate<ComponentModel>();
+        cm2->set_name("a whole");
         ComponentPtr c = cm->instantiate(cm2, "X");
         REQUIRE(c->get_facts("interfaces").size() == 3);
         REQUIRE(c->find_nonmatching_interfaces().size() == 0);
@@ -170,19 +194,24 @@ TEST_CASE("Test Component class interface", "Component")
 
 TEST_CASE("Test ComponentModel class interface", "ComponentModel")
 {
+    XTypeRegistryPtr pr = std::make_shared<ProjectRegistry>();
+
     SECTION("composed_of")
     {
-        ComponentModelPtr cm = std::make_shared<ComponentModel>();
-        cm->composed_of(std::make_shared<Component>());
+        ComponentModelPtr cm = pr->instantiate<ComponentModel>();
+        ComponentPtr c = pr->instantiate<Component>();
+        cm->composed_of(c);
         REQUIRE(cm->get_facts("parts").size() == 1); // composed_of adds xtype to parts
     }
 
+    pr->clear();
+
     SECTION("get_part")
     {
-        ComponentModelPtr cm = std::make_shared<ComponentModel>();
-        ComponentPtr c1 = std::make_shared<Component>();
+        ComponentModelPtr cm = pr->instantiate<ComponentModel>();
+        ComponentPtr c1 = pr->instantiate<Component>();
         c1->set_name("A");
-        ComponentPtr c2 = std::make_shared<Component>();
+        ComponentPtr c2 = pr->instantiate<Component>();
         c2->set_name("B");
         cm->composed_of(c1);
         cm->composed_of(c2);
@@ -192,11 +221,13 @@ TEST_CASE("Test ComponentModel class interface", "ComponentModel")
         REQUIRE(cm->get_part("C") == nullptr);
     }
 
+    pr->clear();
+
     SECTION("instantiate")
     {
-        ComponentModelPtr cm = std::make_shared<ComponentModel>();
+        ComponentModelPtr cm = pr->instantiate<ComponentModel>();
         cm->set_all_unknown_facts_empty();
-        ComponentModelPtr whole = std::make_shared<ComponentModel>();
+        ComponentModelPtr whole = pr->instantiate<ComponentModel>();
         whole->set_name("WHOLE");
         ComponentPtr ptr = cm->instantiate(whole, "test");
         REQUIRE(ptr->has_property("name"));
@@ -204,18 +235,20 @@ TEST_CASE("Test ComponentModel class interface", "ComponentModel")
         REQUIRE(ptr->get_type()->uuid() == cm->uuid());
     }
 
+    pr->clear();
+
     SECTION("build")
     {
-        ComponentModelPtr root_cm = std::make_shared<ComponentModel>();
+        ComponentModelPtr root_cm = pr->instantiate<ComponentModel>();
         root_cm->set_name("root");
         root_cm->set_all_unknown_facts_empty();
-        ComponentModelPtr first_cm = std::make_shared<ComponentModel>();
+        ComponentModelPtr first_cm = pr->instantiate<ComponentModel>();
         first_cm->set_name("first_cm");
         first_cm->set_all_unknown_facts_empty();
-        ComponentModelPtr second_cm = std::make_shared<ComponentModel>();
+        ComponentModelPtr second_cm = pr->instantiate<ComponentModel>();
         second_cm->set_name("second_cm");
         second_cm->set_all_unknown_facts_empty();
-        InterfaceModelPtr some_im = std::make_shared<InterfaceModel>();
+        InterfaceModelPtr some_im = pr->instantiate<InterfaceModel>();
         some_im->instantiate(root_cm, "root_if", "DIRECTION_NOT_SET", "MULTIPLICITY_NOT_SET", true);
         some_im->instantiate(first_cm, "first_if", "DIRECTION_NOT_SET", "MULTIPLICITY_NOT_SET", true);
         some_im->instantiate(second_cm, "second_if", "DIRECTION_NOT_SET", "MULTIPLICITY_NOT_SET", true);
@@ -229,10 +262,12 @@ TEST_CASE("Test ComponentModel class interface", "ComponentModel")
         REQUIRE(module->get_part("part_of_root")->get_facts("parts").size() == 1);
     }
 
+    pr->clear();
+
     SECTION("has")
     {
-        InterfaceModelPtr im = std::make_shared<InterfaceModel>();
-        ComponentModelPtr cm = std::make_shared<ComponentModel>();
+        InterfaceModelPtr im = pr->instantiate<InterfaceModel>();
+        ComponentModelPtr cm = pr->instantiate<ComponentModel>();
         im->instantiate(cm, "P", "BIDIRECTIONAL", "ONE");
         im->instantiate(cm, "I", "BIDIRECTIONAL", "ONE");
         im->instantiate(cm, "ref", "INCOMING", "ONE");
@@ -241,12 +276,14 @@ TEST_CASE("Test ComponentModel class interface", "ComponentModel")
         REQUIRE(cm->get_facts("interfaces").size() == 5);
     }
 
+    pr->clear();
+
     SECTION("get_interfaces")
     {
-        InterfaceModelPtr im = std::make_shared<InterfaceModel>();
-        InterfaceModelPtr im2 = std::make_shared<InterfaceModel>();
+        InterfaceModelPtr im = pr->instantiate<InterfaceModel>();
+        InterfaceModelPtr im2 = pr->instantiate<InterfaceModel>();
         im2->set_name("Peter Klaus");
-        ComponentModelPtr cm = std::make_shared<ComponentModel>();
+        ComponentModelPtr cm = pr->instantiate<ComponentModel>();
         im->instantiate(cm, "a", "BIDIRECTIONAL", "ONE");
         im->instantiate(cm, "b", "BIDIRECTIONAL", "ONE");
         REQUIRE(cm->get_interfaces().size() == 2);
@@ -256,14 +293,17 @@ TEST_CASE("Test ComponentModel class interface", "ComponentModel")
         REQUIRE(cm->get_interfaces(im2).size() == 0);
     }
 
+    pr->clear();
+
     SECTION("find_nonmatching_part_interfaces")
     {
-        InterfaceModelPtr im = std::make_shared<InterfaceModel>();
-        ComponentModelPtr cm = std::make_shared<ComponentModel>();
+        InterfaceModelPtr im = pr->instantiate<InterfaceModel>();
+        ComponentModelPtr cm = pr->instantiate<ComponentModel>();
         InterfacePtr i = im->instantiate(cm, "a");
         InterfacePtr i1 = im->instantiate(cm, "b");
         InterfacePtr i2 = im->instantiate(cm, "c");
-        ComponentModelPtr cm2 = std::make_shared<ComponentModel>();
+        ComponentModelPtr cm2 = pr->instantiate<ComponentModel>();
+        cm2->set_name("a whole");
         ComponentPtr c = cm->instantiate(cm2, "X");
         REQUIRE(c->get_facts("interfaces").size() == 3);
         REQUIRE(cm2->find_nonmatching_part_interfaces().size() == 0);
@@ -279,20 +319,23 @@ TEST_CASE("Test ComponentModel class interface", "ComponentModel")
         REQUIRE(nonmatching.begin()->second[0]->get_property("name") == i2->get_property("name"));
     }
 
+    pr->clear();
+
     SECTION("derive_domain_from_parts")
     {
-        ComponentModelPtr cm = std::make_shared<ComponentModel>();
+        ComponentModelPtr cm = pr->instantiate<ComponentModel>();
         REQUIRE_THROWS(cm->derive_domain_from_parts());
-        ComponentModelPtr domain1 = std::make_shared<ComponentModel>();
+        ComponentModelPtr domain1 = pr->instantiate<ComponentModel>();
         domain1->set_property("domain", "SOFTWARE");
         domain1->set_all_unknown_facts_empty();
         ComponentPtr c1 = domain1->instantiate(cm, "A");
         REQUIRE(cm->derive_domain_from_parts() == true);
         REQUIRE(cm->get_property("domain") == domain1->get_property("domain"));
-        ComponentModelPtr domain2 = std::make_shared<ComponentModel>();
+        ComponentModelPtr domain2 = pr->instantiate<ComponentModel>();
         domain2->set_property("domain", "MECHANICS");
         domain2->set_all_unknown_facts_empty();
         ComponentPtr c2 = domain2->instantiate(cm, "B");
+        REQUIRE(cm->get_facts("parts").size() == 2);
         REQUIRE(cm->derive_domain_from_parts() == true);
         REQUIRE(cm->get_property("domain") != domain1->get_property("domain"));
         REQUIRE(cm->get_property("domain") != domain2->get_property("domain"));
@@ -306,12 +349,8 @@ TEST_CASE("Test ComponentModel class interface", "ComponentModel")
 
 TEST_CASE("Test ComponentModel real-world example", "ComponentModel")
 {
-    ComponentModelPtr cm = std::make_shared<ComponentModel>();
-    cm->set_all_unknown_facts_empty();
-    InterfaceModelPtr im = std::make_shared<InterfaceModel>();
-    im->set_all_unknown_facts_empty();
-    im->set_properties({{"name", "float"},
-                        {"domain", "SOFTWARE"}});
+    XTypeRegistryPtr pr = std::make_shared<ProjectRegistry>();
+    ComponentModelPtr cm = pr->instantiate<ComponentModel>();
     cm->set_properties({
         {"name", "PID"},
         {"domain", "SOFTWARE"},
@@ -321,6 +360,11 @@ TEST_CASE("Test ComponentModel real-world example", "ComponentModel")
             {"faulty_var", "{{ AN_UNKNOWN_VARIABLE}}"},
         }}
     });
+    cm->set_all_unknown_facts_empty();
+    InterfaceModelPtr im = pr->instantiate<InterfaceModel>();
+    im->set_all_unknown_facts_empty();
+    im->set_properties({{"name", "float"},
+                        {"domain", "SOFTWARE"}});
 
     im->instantiate(cm, "P", "BIDIRECTIONAL", "ONE", true);
     im->instantiate(cm, "I", "BIDIRECTIONAL", "ONE", true);
@@ -332,10 +376,7 @@ TEST_CASE("Test ComponentModel real-world example", "ComponentModel")
 
     cm->get_facts("interfaces")[0].target.lock()->set_property("alias", "some alias");
 
-    ComponentModelPtr cm2 = std::make_shared<ComponentModel>();
-    cm2->set_all_unknown_facts_empty();
-    InterfacePtr outerInput = im->instantiate(cm2, "position_reference", "INCOMING", "ONE", true);
-    InterfacePtr outerOutput = im->instantiate(cm2, "out", "OUTGOING", "N", true);
+    ComponentModelPtr cm2 = pr->instantiate<ComponentModel>();
     cm2->set_properties({
         {"name", "CascadedController"}, {"domain", "SOFTWARE"}, {"version", "v0.1"},
         {"defaultConfiguration", {
@@ -353,6 +394,9 @@ TEST_CASE("Test ComponentModel real-world example", "ComponentModel")
             }}
         }}
     });
+    cm2->set_all_unknown_facts_empty();
+    InterfacePtr outerInput = im->instantiate(cm2, "position_reference", "INCOMING", "ONE", true);
+    InterfacePtr outerOutput = im->instantiate(cm2, "out", "OUTGOING", "N", true);
     cm->instantiate(cm2, "Velocity", true);
     cm->instantiate(cm2, "Position", true);
 
@@ -419,6 +463,14 @@ TEST_CASE("Test ComponentModel real-world example", "ComponentModel")
     }
     REQUIRE(connections == 1);
 
+    SECTION("Basic JSON import/export")
+    {
+        std::map< std::string, nl::json > exported = cm2->export_to();
+        XTypePtr imported = XType::import_from(exported.at(cm2->uri()), pr);
+        REQUIRE(imported);
+        REQUIRE(imported->uri() == cm2->uri());
+    }
+
     SECTION("Build a module")
     {
         ModulePtr module = cm2->build("CascadedControllerModule");
@@ -456,22 +508,24 @@ TEST_CASE("Test ComponentModel real-world example", "ComponentModel")
         REQUIRE(!exported_json_str.empty());
         nl::json exported_json = parseJson(exported_json_str);
         REQUIRE(!exported_json.empty());
-        // //std::cout << "============================\n"
+        //std::cout << "============================\n"
         //           << exported_json.dump(4) << std::endl;
 
-        auto load_missing_models = [&](const nl::json &u) -> ComponentModelPtr
+        // We have to commit the important things for import_from_basic_model to be found
+        REQUIRE(pr->commit(cm, true));
+        REQUIRE(pr->commit(im, true));
+        // Lets create an empty, fresh registry
+        XTypeRegistryPtr import_reg = std::make_shared<ProjectRegistry>();
+        auto load_by_uri = [&](const std::string& uri) -> XTypePtr
         {
-            ComponentModel dummy;
-            dummy.set_properties(u);
-            const std::string &uri(dummy.uri());
-            if (uri == cm->uri())
-                return cm;
-            else if (uri == cm2->uri())
-                return cm2;
-            else
-                return nullptr;
+            INFO("load_by_uri("+uri+")");
+            XTypeCPtr lookup = pr->get_by_uri(uri);
+            REQUIRE(lookup != nullptr);
+            REQUIRE(import_reg->commit(lookup, true));
+            return lookup; 
         };
-        std::vector<ComponentModelPtr> imported = cm2->import_from_basic_model(exported_json_str, load_missing_models);
+        import_reg->set_load_func(load_by_uri);
+        std::vector<ComponentModelPtr> imported = ComponentModel::import_from_basic_model(exported_json_str, import_reg);
         ////std::cout << "imported size: " << imported.size() << std::endl;
         REQUIRE(imported.size() == 1);
 
@@ -482,21 +536,6 @@ TEST_CASE("Test ComponentModel real-world example", "ComponentModel")
             REQUIRE(r->uuid() == cm2->uuid());
             ////std::cout << r->uuid() << " ==" << cm2->uuid();
         }
-    }
-
-    SECTION("Basic JSON import/export")
-    {
-        URI2Spec exported = cm2->export_to();
-        for (auto [uri, spec] : exported)
-        {
-            ////std::cout << spec << std::endl;
-        }
-
-        auto load_spec_by_uri = [&](const std::string &u) -> const nl::json &
-        { /*//std::cout << "Importing " << u << "\n";*/ return exported.at(u); };
-        ProjectRegistry project_registry = ProjectRegistry();
-        XTypePtr imported = XType::import_from(cm2->uri(), load_spec_by_uri, project_registry);
-        REQUIRE(imported);
     }
 
     SECTION("Disconnect parts")
@@ -522,13 +561,15 @@ TEST_CASE("Test ComponentModel real-world example", "ComponentModel")
 
 TEST_CASE("Test abstract and concrete component models can_implement", "AbstractComponentModel")
 {
+    XTypeRegistryPtr pr = std::make_shared<ProjectRegistry>();
+
     // Abstract Vehicle
-    ComponentModelPtr vehicle = std::make_shared<ComponentModel>();
+    ComponentModelPtr vehicle = pr->instantiate<ComponentModel>();
     vehicle->set_all_unknown_facts_empty();
-    InterfaceModelPtr im = std::make_shared<InterfaceModel>();
+    InterfaceModelPtr im = pr->instantiate<InterfaceModel>();
     im->set_properties({{"name", "Street"},
                         {"domain", "ASSEMBLY"}});
-    InterfaceModelPtr im2 = std::make_shared<InterfaceModel>();
+    InterfaceModelPtr im2 = pr->instantiate<InterfaceModel>();
     im2->set_properties({{"name", "Air"},
                          {"domain", "ASSEMBLY"}});
     vehicle->set_properties({{"name", "Vehicle"},
@@ -541,7 +582,7 @@ TEST_CASE("Test abstract and concrete component models can_implement", "Abstract
     InterfacePtr v_brake = im->instantiate(vehicle, "brake", "DIRECTION_NOT_SET", "MULTIPLICITY_NOT_SET", true);
     InterfacePtr v_horn = im->instantiate(vehicle, "horn", "OUTGOING", "MULTIPLICITY_NOT_SET", true);
     
-    ComponentModelPtr car = std::make_shared<ComponentModel>();
+    ComponentModelPtr car = pr->instantiate<ComponentModel>();
     car->set_all_unknown_facts_empty();
     car->set_properties({{"name", "Opel"},
                          {"domain", "ASSEMBLY"},
@@ -559,15 +600,17 @@ TEST_CASE("Test abstract and concrete component models can_implement", "Abstract
 
 TEST_CASE("Test abstract and concrete component models", "AbstractComponentModel")
 {
+    XTypeRegistryPtr pr = std::make_shared<ProjectRegistry>();
+
     SECTION("implements")
     {
         // Abstract Vehicle
-        ComponentModelPtr vehicle = std::make_shared<ComponentModel>();
+        ComponentModelPtr vehicle = pr->instantiate<ComponentModel>();
         vehicle->set_all_unknown_facts_empty();
-        InterfaceModelPtr im = std::make_shared<InterfaceModel>();
+        InterfaceModelPtr im = pr->instantiate<InterfaceModel>();
         im->set_properties({{"name", "Street"},
                             {"domain", "ASSEMBLY"}});
-        InterfaceModelPtr im2 = std::make_shared<InterfaceModel>();
+        InterfaceModelPtr im2 = pr->instantiate<InterfaceModel>();
         im2->set_properties({{"name", "Air"},
                             {"domain", "ASSEMBLY"}});
         vehicle->set_properties({
@@ -583,7 +626,7 @@ TEST_CASE("Test abstract and concrete component models", "AbstractComponentModel
         InterfacePtr v_wing = im2->instantiate(vehicle, "wing",  "DIRECTION_NOT_SET", "MULTIPLICITY_NOT_SET", true);
         v_wing->set_property("direction", "INCOMING");
 
-        ComponentModelPtr car = std::make_shared<ComponentModel>();
+        ComponentModelPtr car = pr->instantiate<ComponentModel>();
         car->set_all_unknown_facts_empty();
         car->set_properties({
             {"name", "Opel"},
@@ -652,7 +695,7 @@ TEST_CASE("Test abstract and concrete component models", "AbstractComponentModel
             REQUIRE(real_car->get_facts("interfaces").size() == car->get_interfaces().size());
         }
         // Make another implementation of vehicle
-        ComponentModelPtr another_car = std::make_shared<ComponentModel>();
+        ComponentModelPtr another_car = pr->instantiate<ComponentModel>();
         another_car->set_all_unknown_facts_empty();
         another_car->set_properties({
             {"name", "VW T4"},
@@ -689,7 +732,7 @@ TEST_CASE("Test abstract and concrete component models", "AbstractComponentModel
 
         // In an upper component model, instantiate vehicle and try to build the upper model using callback to resolve the implementations
         // Create a garage
-        ComponentModelPtr garage = std::make_shared<ComponentModel>();
+        ComponentModelPtr garage = pr->instantiate<ComponentModel>();
         garage->set_all_unknown_facts_empty();
         garage->set_properties({
                     {"name", "A Garage"},
@@ -720,7 +763,7 @@ TEST_CASE("Test abstract and concrete component models", "AbstractComponentModel
 
         // Export some of the interfaces to the garage interfaces, create a park of garages, connect some of the interfaces, then build that park
         // Create a park
-        ComponentModelPtr park = std::make_shared<ComponentModel>();
+        ComponentModelPtr park = pr->instantiate<ComponentModel>();
         park->set_all_unknown_facts_empty();
         park->set_properties({
                     {"name", "A park"},
@@ -734,7 +777,7 @@ TEST_CASE("Test abstract and concrete component models", "AbstractComponentModel
         g_horn->alias_of(vehicle_part->get_interface(v_horn->get_name()));
         REQUIRE(g_horn->get_facts("original").size() == 1);
         // Lets create a detector for that horn signal (to which we can connect)
-        ComponentModelPtr listener = std::make_shared<ComponentModel>();
+        ComponentModelPtr listener = pr->instantiate<ComponentModel>();
         listener->set_all_unknown_facts_empty();
         listener->set_properties({
                     {"name", "A listener"},
@@ -781,11 +824,13 @@ TEST_CASE("Test abstract and concrete component models", "AbstractComponentModel
         }
     }
 
+    pr->clear();
+
     SECTION("atomic")
     {
-        ComponentModelPtr vehicle = std::make_shared<ComponentModel>();
+        ComponentModelPtr vehicle = pr->instantiate<ComponentModel>();
         vehicle->set_all_unknown_facts_empty();
-        ComponentPtr steering = std::make_shared<Component>();
+        ComponentPtr steering = pr->instantiate<Component>();
         vehicle->set_properties({
             {"name", "Vehicle"},
             {"domain", "ASSEMBLY"},
@@ -805,10 +850,12 @@ TEST_CASE("Test abstract and concrete component models", "AbstractComponentModel
 
 TEST_CASE("Test ExternalReference class interface", "ExternalReference")
 {
+    XTypeRegistryPtr pr = std::make_shared<ProjectRegistry>();
+
     SECTION("add reference")
     {
-        ComponentModelPtr cm = std::make_shared<ComponentModel>();
-        GitReferencePtr ref = std::make_shared<GitReference>();
+        ComponentModelPtr cm = pr->instantiate<ComponentModel>();
+        GitReferencePtr ref = pr->instantiate<GitReference>();
         ref->set_property("remote_url", "https://github.com/dfki-ric/dfki-ric.github.io.git");
         ref->set_property("name", "test_repo");
         cm->set_name("SOMETHING");
@@ -817,11 +864,13 @@ TEST_CASE("Test ExternalReference class interface", "ExternalReference")
         REQUIRE(std::dynamic_pointer_cast<ExternalReference>(cm->get_facts("external_references").at(0).target.lock())->get_name() == "test_repo");
     }
 
+    pr->clear();
+
     SECTION("checkout reference")
     {
         static std::once_flag onceFlag;
-        std::call_once(onceFlag, [ ]{              
-        GitReferencePtr ref = std::make_shared<GitReference>();
+        std::call_once(onceFlag, [&]{              
+        GitReferencePtr ref = pr->instantiate<GitReference>();
         std::string remote_url = "https://github.com/Priyanka328/dummy_test_libgit2.git";
         ref->set_property("remote_url", remote_url);
         //ref->set_property("remote", nl::json{{"name","origin"},{"url",remote_url}});
@@ -839,7 +888,7 @@ TEST_CASE("Test ExternalReference class interface", "ExternalReference")
         ref->set_read_only(false);
         //ref->store("temp"); 
         });
-}
+    }
 }
 
 TEST_CASE("Test git wrapper create/open/ add/initial_commit ", "gitwrapper_test1")

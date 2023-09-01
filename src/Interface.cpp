@@ -14,18 +14,6 @@ using namespace xtypes;
 xtypes::Interface::Interface(const std::string &classname) : _Interface(classname)
 {
     // NOTE: Properties and relations have been created in _Interface constructor
-    // Here, we register ourselves and the xtypes we use to our registry
-    registry->register_class<Component>();
-
-    registry->register_class<ComponentModel>();
-
-    registry->register_class<DynamicInterface>();
-
-    registry->register_class<Interface>();
-
-    registry->register_class<InterfaceModel>();
-
-    registry->register_class<XType>();
 }
 
 // Static identifier
@@ -35,11 +23,11 @@ const std::string xtypes::Interface::classname = "xtypes::Interface";
 // This function returns the domain of the interface
 std::string xtypes::Interface::get_domain()
 {
-    return this->get_facts("model")[0].target.lock()->get_property("domain").get<std::string>();
+    return this->get_type()->get_domain();
 }
 
 // Returns the model of which this interface has been instantiated from
-InterfaceModelPtr xtypes::Interface::get_type() const
+InterfaceModelPtr xtypes::Interface::get_type()
 {
     return (std::static_pointer_cast<InterfaceModel>(this->get_facts("model")[0].target.lock()));
 }
@@ -74,9 +62,27 @@ void xtypes::Interface::alias_of(const InterfacePtr interface)
     this->add_original(interface);
 }
 
+// Returns true if this interface is connected to the other interface
+bool xtypes::Interface::is_connected_to(const InterfacePtr other)
+{
+    for (const auto& [i,_] : get_facts("others"))
+    {
+        const InterfacePtr interface(std::static_pointer_cast<Interface>(i.lock()));
+        if (interface->uri() == other->uri())
+            return true;
+    }
+    return false;
+}
+
 // This function first checks if the interfaces can be connected. If so, they get connected.
 bool xtypes::Interface::connected_to(const InterfacePtr interface, const nl::json &properties)
 {
+    // First check if both interfaces are ALREADY connected
+    if (is_connected_to(interface))
+    {
+        // TODO: Should we update the properties?
+        return true;
+    }
     if (!is_connectable_to(interface))
     {
         // NOTE: Removed throw here, because trying to connect incompatible interfaces is ok and not considered a serious error
@@ -102,30 +108,25 @@ bool xtypes::Interface::connected_to(const InterfacePtr interface, const nl::jso
 void xtypes::Interface::disconnect()
 {
     // Disconnect others from us first
-    std::vector<xtypes::Fact> &others(this->get_facts("others"));
+    std::vector<xtypes::Fact> others(this->get_facts("others"));
     for (const auto &[o, _] : others)
     {
         const xtypes::XTypePtr other(o.lock());
-        std::vector<std::size_t> indices{};
+        std::vector<XTypePtr> to_remove;
         // Gather info at other interfaces to be deleted
-        std::vector<xtypes::Fact> &from_others(other->get_facts("from_others"));
-        for (std::size_t i{0}; i < from_others.size(); ++i)
+        std::vector<xtypes::Fact> from_others(other->get_facts("from_others"));
+        for (const auto &[fo, _] : from_others)
         {
-            if (from_others[i].target.lock()->uuid() == this->uuid())
+            const xtypes::XTypePtr from_other(fo.lock());
+            if (from_other->uuid() == this->uuid())
             {
-                indices.push_back(i);
+                other->remove_fact("from_others", from_other);
             }
         }
-        // TODO: Is this working properly?
-        for (const std::size_t i : indices)
-        {
-            from_others.erase(from_others.begin() + i);
-        }
     }
-
-    // Disconnect us from others
-    others.clear();
+    this->facts.at("others").clear();
 }
+
 // This function check connectability
 bool xtypes::Interface::is_connectable_to(const InterfacePtr other)
 {
@@ -291,9 +292,10 @@ void xtypes::Interface::add_interfaces_of_abstracts(xtypes::InterfaceCPtr xtype,
 // This function removes the realization which has been done with the abstract interface
 void xtypes::Interface::unrealize()
 {
-    auto &abst_interfaces = get_facts("interfaces_of_abstracts");
-    if(!abst_interfaces.empty())
-        abst_interfaces.clear();
+    if (this->has_facts("interfaces_of_abstracts"))
+    {
+        this->facts.at("interfaces_of_abstracts").clear();
+    }
 }
 
 // This function returns true if this interface has already realized an abstract interface
@@ -302,8 +304,6 @@ bool xtypes::Interface::has_realization(const InterfacePtr other)
     for (const auto &[a_inter, _] : this->get_facts("interfaces_of_abstracts"))
     {
         const InterfacePtr inter(std::static_pointer_cast<Interface>(a_inter.lock()));
-        std::cout << inter->uuid() << std::endl;
-        std::cout << other->uuid() << std::endl;
         if (inter->uuid() == other->uuid())
             return true;
     }

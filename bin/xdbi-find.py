@@ -21,7 +21,6 @@ def main():
     # tool specific args
     parser.add_argument('-V','--verbose', dest="verbose", help="Print-out additional information about found xtypes", action="store_true")
     parser.add_argument('-c','--classname',  help="The name of the Xtype-derived class [%(default)s]", default="ComponentModel")
-    parser.add_argument('-m', '--max_depth', help="The maximum Search depth ", type=int, default=-1)
     
     parser.set_defaults(verbose=False)
     args = None
@@ -44,7 +43,7 @@ def main():
     properties = {}
     if args.model_name is not None:
         properties = {"name": args.model_name, "domain": args.model_domain, "version": args.model_version}
-    xtypes = dbi.find(classname=args.classname, properties = properties, search_depth=max_depth)
+    xtypes = dbi.find(classname=args.classname, properties = properties)
     
     if not xtypes:
         print("Could not find any Xtype")

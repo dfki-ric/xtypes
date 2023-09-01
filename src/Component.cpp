@@ -13,10 +13,6 @@ xtypes::Component::Component(const std::string& classname) : _Component(classnam
 {
     // NOTE: Properties and relations have been created in _Component constructor
     // Here, we register ourselves and the xtypes we use to our registry
-    registry->register_class<ComponentModel>();
-
-    registry->register_class<Interface>();
-
 }
 
 // Static identifier
@@ -24,7 +20,7 @@ const std::string xtypes::Component::classname = "xtypes::Component";
 
 // Method implementations
 // Returns the model of which this component has been instantiated from
-ComponentModelPtr xtypes::Component::get_type() const
+ComponentModelPtr xtypes::Component::get_type()
 {
     return (std::static_pointer_cast<ComponentModel>(this->get_facts("model")[0].target.lock()));
 }

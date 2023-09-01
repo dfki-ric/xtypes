@@ -82,14 +82,17 @@ def main():
             user_input = input(f"Do you want to define facts to the relation '{relation_name}' ({','.join(relation_details.from_classnames)} -> {','.join(relation_details.to_classnames)})? [s: set, e: set empty, u or nothing: skip/leave unknown]: ")
             if user_input.lower() == "s":
                 while True:
-                    user_input = input(f"Please enter the URI of the fact to add or press ENTER to skip: ")
-                    if user_input:
-                        other_side = dbi.find(list(relation_details.to_classnames)[0], properties={"uri": user_input}, search_depth=0)
-                        if len(other_side) == 0:
-                            print(f"Could not find any Xtype of class '{relation_details.to_classnames[0]}' with URI '{user_input}'")
+                    user_input_uri = input(f"Please enter the URI of the fact to add or press ENTER to skip: ")
+                    if user_input_uri:
+                        other_side = dbi.load(user_input_uri)
+                        if not other_side:
+                            print(f"Could not find any Xtype with URI '{user_input_uri}'")
+                            continue
+                        if other_side.get_classname() not in relation_details.to_classnames:
+                            print(f"'{other_side.get_classname()}' class is not in the codomain of '{relation_name}'")
                             continue
                         try:
-                            add_method(other_side[0])
+                            add_method(other_side)
                             print(f"Fact added to relation '{relation_name}'")
                         except Exception as e:
                             print(f"Failed to add fact to relation '{relation_name}'")

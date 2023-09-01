@@ -113,13 +113,11 @@ methods:
     description: "Go to every part and its interfaces and call disconnect"
 
   get_types:
-    const: True
     returns:
       type: VECTOR(XTYPE(ComponentModelPtr))
     description: "Returns the direct superclasses of this model"
 
   get_all_types:
-    const: True
     returns:
       type: MAP(STRING, XTYPE(ComponentModelPtr))
     description: "Returns all the superclasses of this model (transitive closure over superclass_of relation)"
@@ -158,19 +156,16 @@ methods:
     description: "This function checks whether this ComponentModel can implement superclass abstract ComponentModel."
 
   get_abstracts:
-    const: True
     returns:
       type: VECTOR(XTYPE(ComponentModelPtr))
     description: "Returns the direct abstract models for which this ComponentModel is an implementation"
 
   get_implementations:
-    const: True
     returns:
       type: VECTOR(XTYPE(ComponentModelPtr))
     description: "Returns the direct implementation models for which this ComponentModel is an abstract"
 
   get_all_abstracts:
-    const: True
     returns:
       type: MAP(STRING, XTYPE(ComponentModelPtr))
     description: "Returns all the abstract models for which this ComponentModel is an implementation (transitive closure over superclass_of relation of abstracts)"
@@ -227,7 +222,7 @@ methods:
         default: '""'
       - name: with_empty_facts
         type: BOOLEAN
-        default: false
+        default: true
     returns:
       type: XTYPE(ComponentPtr)
     description: "This function creates a new component instance of this model and makes it part of the given component model"
@@ -244,7 +239,6 @@ methods:
     description: "This function builds a new module out of the component model spec. It will also build ALL subcomponents."
 
   export_to_basic_model:
-    const: True
     returns:
       type: STRING
     description: "This method exports a component model to the DROCK BasicModel Json format"
@@ -254,10 +248,10 @@ methods:
     arguments:
       - name: serialized_model
         type: STRING
-      - name: load_missing_component_model
-        type: FUNCTION(ComponentModelPtr(const nl::json&))
+      - name: registry
+        type: XTypeRegistryPtr
     returns:
-      type: VECTOR(XTYPE(ComponentModelPtr))
+        type: VECTOR(XTYPE(ComponentModelPtr)) # NOTE: These can be multiple models (one per version entry)
     description: "This method imports a component model from the DROCK BasicModel Json format"
 
   annotate_with:

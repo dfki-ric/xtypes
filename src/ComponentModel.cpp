@@ -30,10 +30,6 @@ using namespace xtypes;
 xtypes::ComponentModel::ComponentModel(const std::string &classname) : _ComponentModel(classname)
 {
     // NOTE: Properties and relations have been created in _ComponentModel constructor
-
-    // In the template we have not specified that we also use InterfaceModel internally, so we have to register it manually
-    registry->register_class<InterfaceModel>();
-    registry->register_class<AutoprojReference>();
 }
 
 // Static identifier
@@ -97,21 +93,20 @@ void xtypes::ComponentModel::composed_of(const ComponentPtr part)
     this->add_parts(part);
 }
 
-// Returns all the superclasses of this model (transitive closure over superclass_of relation)
-std::vector<ComponentModelPtr> xtypes::ComponentModel::get_types() const
+// Returns all the direct superclasses of this model
+std::vector<ComponentModelPtr> xtypes::ComponentModel::get_types()
 {
     std::vector<ComponentModelPtr> result;
     for (const auto& [cm, _] : this->get_facts("model"))
     {
         const xtypes::ComponentModelPtr model(std::static_pointer_cast<ComponentModel>(cm.lock()));
-        // TODO: Call model->get_types()
         result.push_back(model);
     }
     return result;
 }
 
 // Returns all the superclasses of this model (transitive closure over superclass_of relation)
-std::map<std::string, ComponentModelPtr> xtypes::ComponentModel::get_all_types() const
+std::map<std::string, ComponentModelPtr> xtypes::ComponentModel::get_all_types()
 {
     std::map<std::string, ComponentModelPtr> result;
     for (const auto& model : this->get_types())
@@ -236,7 +231,7 @@ bool xtypes::ComponentModel::is_abstract()
     return is_abstract;
 }
 
-std::vector<ComponentModelPtr> xtypes::ComponentModel::get_abstracts() const
+std::vector<ComponentModelPtr> xtypes::ComponentModel::get_abstracts()
 {
     std::vector<ComponentModelPtr> abstracts;
     for(const auto& [a, _] :  this->get_facts("abstracts"))
@@ -247,7 +242,7 @@ std::vector<ComponentModelPtr> xtypes::ComponentModel::get_abstracts() const
     return abstracts;
 }
 
-std::vector<ComponentModelPtr> xtypes::ComponentModel::get_implementations() const
+std::vector<ComponentModelPtr> xtypes::ComponentModel::get_implementations()
 {
     std::vector<ComponentModelPtr> implementations;
     for(const auto& [i, _] :  this->get_facts("implementations"))
@@ -259,7 +254,7 @@ std::vector<ComponentModelPtr> xtypes::ComponentModel::get_implementations() con
 }
 
 // Returns all the abstract models for which this ComponentModel is an implementation (transitive closure over superclass_of relation of abstracts)
-std::map<std::string, ComponentModelPtr> xtypes::ComponentModel::get_all_abstracts() const
+std::map<std::string, ComponentModelPtr> xtypes::ComponentModel::get_all_abstracts()
 {
     std::map<std::string, ComponentModelPtr> implementations;
     for (const auto& abstract :  this->get_abstracts())
@@ -287,13 +282,16 @@ bool xtypes::ComponentModel::is_implementing(const ComponentModelPtr superclass)
 // This function adds an interface to the ComponentModel
 void xtypes::ComponentModel::has(const InterfacePtr interface)
 {
-    this->add_interfaces(interface);
+    // NOTE: Because the URI of the interface depends on the parent itself, we can only use the add_* function of the interface
+    // Our URI is valid
+    interface->add_parent(std::static_pointer_cast<ComponentModel>(shared_from_this()));
 }
 
 // This function adds an dynamic interface to the ComponentModel
 void xtypes::ComponentModel::has(const DynamicInterfacePtr dynamic_interface)
 {
-    this->add_dynamic_interfaces(dynamic_interface);
+    // Same as has() for interface
+    dynamic_interface->add_parent(std::static_pointer_cast<ComponentModel>(shared_from_this()));
 }
 
 
@@ -306,8 +304,13 @@ ComponentPtr xtypes::ComponentModel::instantiate(const ComponentModelPtr as_part
         // We throw here, because this is a serious usage error
         throw std::invalid_argument("ComponentModel::instantiate: need a whole for which a component is part of");
     }
+    XTypeRegistryPtr reg = registry.lock();
+    if (!reg)
+    {
+        throw std::invalid_argument("ComponentModel::instantiate: no registry");
+    }
 
-    ComponentPtr comp = registry->instantiate<Component>();
+    ComponentPtr comp = reg->instantiate<Component>();
     // set all unknown facts empty (convenience functionality)
     if (with_empty_facts)
     {
@@ -315,7 +318,6 @@ ComponentPtr xtypes::ComponentModel::instantiate(const ComponentModelPtr as_part
     }
     // set initial properties
     comp->set_properties(this->get_properties(), false);
-    comp->instance_of(std::static_pointer_cast<ComponentModel>(shared_from_this()));
     // override name if given
     if (!and_name.empty())
     {
@@ -325,21 +327,22 @@ ComponentPtr xtypes::ComponentModel::instantiate(const ComponentModelPtr as_part
     comp->set_configuration(this->get_defaultConfiguration());
     // Make the component part of the whole
     as_part_of_whole->composed_of(comp);
+    comp->instance_of(std::static_pointer_cast<ComponentModel>(shared_from_this()));
     // inheritance of interfaces
     for (const auto &[i, _] : this->get_facts("interfaces"))
     {
         // for each interface, get the model and instantiate a clone to be used for the new component instance
         const xtypes::InterfacePtr interface(std::static_pointer_cast<Interface>(i.lock()));
         const xtypes::InterfaceModelPtr model(interface->get_type());
-        InterfacePtr clone = comp->registry->instantiate<Interface>();
+        InterfacePtr clone = reg->instantiate<Interface>();
+        clone->set_properties(interface->get_properties());
         // set all unknown facts empty (convenience functionality)
         if (with_empty_facts)
         {
             clone->set_all_unknown_facts_empty();
         }
-        clone->instance_of(model);
-        clone->set_properties(interface->get_properties());
         comp->has(clone);
+        clone->instance_of(model);
     }
     // DynamicInterface will be created later
     return comp;
@@ -348,6 +351,12 @@ ComponentPtr xtypes::ComponentModel::instantiate(const ComponentModelPtr as_part
 // This function builds a new module out of the component model spec. It will also build ALL subcomponents.
 ModulePtr xtypes::ComponentModel::build(const std::string& with_name, const std::function< ComponentModelPtr(const ComponentModelPtr&, const std::vector<ComponentModelPtr>&) >& select_implementation)
 {
+    XTypeRegistryPtr reg = this->registry.lock();
+    if (!reg)
+    {
+        throw std::invalid_argument("ComponentModel::build(): No registry");
+    }
+
     // First check if we are abstract or not
     if (this->get_abstract())
     {
@@ -368,13 +377,12 @@ ModulePtr xtypes::ComponentModel::build(const std::string& with_name, const std:
     }
 
     // Setup toplvl module (without parent) first
-    ModulePtr module = this->registry->instantiate<Module>();
-    module->add_model(std::static_pointer_cast<ComponentModel>(shared_from_this()));
+    ModulePtr module = reg->instantiate<Module>();
     module->set_properties(this->get_properties(), false);
     module->set_name(with_name);
     module->set_configuration(this->get_defaultConfiguration());
-    module->instance_of(std::static_pointer_cast<ComponentModel>(shared_from_this()));
     module->set_unknown_fact_empty("whole");
+    module->instance_of(std::static_pointer_cast<ComponentModel>(shared_from_this()));
 
     // Inherit the interfaces of the model!
     for (const auto &[i, _] : this->get_facts("interfaces"))
@@ -382,11 +390,11 @@ ModulePtr xtypes::ComponentModel::build(const std::string& with_name, const std:
         // for each interface, get the model and instantiate a clone to be used for the new component instance
         const InterfacePtr interface(std::static_pointer_cast<Interface>(i.lock()));
         const InterfaceModelPtr model(interface->get_type());
-        InterfacePtr clone = module->registry->instantiate<Interface>();
-        clone->instance_of(model);
+        InterfacePtr clone = reg->instantiate<Interface>();
         clone->set_properties(interface->get_properties());
         clone->set_all_unknown_facts_empty();
         module->has(clone);
+        clone->instance_of(model);
     }
 
     // Early exit: No parts
@@ -429,10 +437,10 @@ ModulePtr xtypes::ComponentModel::build(const std::string& with_name, const std:
             // An implementation has been chosen, so we set this as the new submodule_model
             submodule_model = impl;
         }
-        ModulePtr submodule = parent_module->registry->instantiate<Module>();
+        ModulePtr submodule = reg->instantiate<Module>();
         submodule->set_properties(part->get_properties());
-        submodule->part_of(parent_module);
         submodule->instance_of(submodule_model);
+        submodule->part_of(parent_module);
         submodule2part[submodule] = part;
         //std::cout << "submodule: " << submodule->get_name() << "\n";
 
@@ -443,11 +451,11 @@ ModulePtr xtypes::ComponentModel::build(const std::string& with_name, const std:
             // for each interface, get the model and instantiate a clone to be used for the new component instance
             const InterfacePtr interface(std::static_pointer_cast<Interface>(i.lock()));
             const InterfaceModelPtr ifmodel(interface->get_type());
-            InterfacePtr clone = submodule->registry->instantiate<Interface>();
-            clone->instance_of(ifmodel);
-            clone->set_properties(interface->get_properties());
+            InterfacePtr clone = reg->instantiate<Interface>();
             clone->set_all_unknown_facts_empty();
+            clone->set_properties(interface->get_properties());
             submodule->has(clone);
+            clone->instance_of(ifmodel);
         }
 
         // Resolve injective mapping from implementation to abstract interface
@@ -653,10 +661,9 @@ std::vector<InterfacePtr> xtypes::ComponentModel::get_interfaces(const Interface
 // This function removes interfaces by it's name
 void xtypes::ComponentModel::remove_interface(const std::string &name)
 {
-    auto &facts = get_facts("interfaces");
-    facts.erase(std::remove_if(facts.begin(), facts.end(), [&name](const auto &fact)
-                               { return std::static_pointer_cast<Interface>(fact.target.lock())->get_properties()["name"] == name; }),
-                facts.end());
+    auto matches = get_interfaces(nullptr, name);
+    for (const auto& match : matches)
+        remove_fact("interfaces", match);
 }
 
 // This functions resolves any interfaces of inner parts which do not match any of the parts' model interfaces and a list of possible future matches.
@@ -681,7 +688,7 @@ void xtypes::ComponentModel::disconnect_parts()
 }
 
 // This method exports a component model to the DROCK BasicModel Json format
-std::string xtypes::ComponentModel::export_to_basic_model() const
+std::string xtypes::ComponentModel::export_to_basic_model()
 {
     nl::json data;
     data["name"] = get_name();
@@ -819,7 +826,7 @@ std::string xtypes::ComponentModel::export_to_basic_model() const
     return data.dump();
 }
 
-std::vector<ComponentModelPtr> xtypes::ComponentModel::import_from_basic_model(const std::string &serialized_model, const std::function<ComponentModelPtr(const nl::json &)> &load_missing_component_model)
+std::vector<ComponentModelPtr> xtypes::ComponentModel::import_from_basic_model(const std::string &serialized_model, const XTypeRegistryPtr &registry)
 {
     std::vector<ComponentModelPtr> result;
     std::map<std::string, ComponentModelPtr> part_models;
@@ -842,11 +849,12 @@ std::vector<ComponentModelPtr> xtypes::ComponentModel::import_from_basic_model(c
         for (const auto& t : data["types"])
         {
             nl::json props = nl::json{{"name", t["name"]}, {"version", t["version"]}, {"domain", domain}};
-            ComponentModelPtr supermodel = load_missing_component_model(props);
+            ComponentModel dummy;
+            dummy.set_properties(props);
+            ComponentModelPtr supermodel = std::static_pointer_cast<ComponentModel>(registry->load_by_uri(dummy.uri()));
             if (!supermodel)
             {
-                supermodel = std::make_shared<ComponentModel>();
-                supermodel->set_all_unknown_facts_empty();
+                supermodel = registry->instantiate<ComponentModel>();
                 supermodel->set_properties(props);
             }
             supermodels.push_back(supermodel);
@@ -877,34 +885,33 @@ std::vector<ComponentModelPtr> xtypes::ComponentModel::import_from_basic_model(c
         props["version"] = version;
 
         // Create new model with specific version
-        ComponentModelPtr model = std::make_shared<ComponentModel>();
-	model->set_all_unknown_facts_empty();
-
+        ComponentModelPtr model = registry->instantiate<ComponentModel>();
+        model->set_all_unknown_facts_empty();
+        model->set_properties(props, false);
         // Attach supermodels
         for (auto& supermodel : supermodels)
         {
-            // .. to registry (we return the submodel only)
-            model->registry->hold(supermodel);
             // .. to subclass_of relation
             model->subclass_of(supermodel);
         }
-        model->set_properties(props, false);
 
         // Handle defaultConfigurations
         if (v.contains("defaultConfiguration"))
             model->set_defaultConfiguration(v["defaultConfiguration"]);
-        // TODO implement how the ExternalReference is put into the BasicModel
+
+        // Resolve/create external references
         if (v.contains("external_references")) {
             assert(v["external_references"].is_array());
             for (const auto &eRefIt : v["external_references"])
             {
                 // TODO: Actually, the ExternalReference has to be looked up FIRST (by load_missing_external_reference or such) and only created if not found
-                ExternalReferencePtr eRef = model->registry->instantiate<ExternalReference>();
+                ExternalReferencePtr eRef = registry->instantiate<ExternalReference>();
                 eRef->set_properties(eRefIt);
-                // Afterwards we make the interface an interface of the model
+                // Afterwards we annotate the model with the external reference
                 model->annotate_with((ExternalReferencePtr)eRef, eRefIt["optional"]);
             }
         }
+
         // Handle deprecated repository
         if (v.contains("repository"))
             throw std::runtime_error("The 'repository' property of ComponentModel is deprecated. Please use the ExternalReference relation instead.");
@@ -947,12 +954,13 @@ std::vector<ComponentModelPtr> xtypes::ComponentModel::import_from_basic_model(c
                     else
                     {
                         // ... if not found, call provided function to search for a matching part model
-                        partModel = load_missing_component_model(part["model"]);
-                        // and place it into cache and model registry if found
+                        ComponentModel dummy;
+                        dummy.set_properties(part["model"]);
+                        partModel = std::static_pointer_cast<ComponentModel>(registry->load_by_uri(dummy.uri()));
+                        // and place it into cache
                         if (partModel)
                         {
                             part_models[lookup] = partModel;
-                            model->registry->hold(partModel);
                         }
                     }
                     // If the model has not been found, ignore it
@@ -964,7 +972,7 @@ std::vector<ComponentModelPtr> xtypes::ComponentModel::import_from_basic_model(c
                     }
 
                     // Create the part (and set all inner facts to be empty, not unknown)
-                    xtypes::ComponentPtr p = partModel->instantiate(model, partName, true);
+                    ComponentPtr p = partModel->instantiate(model, partName, true);
                     if (!p)
                     {
                         std::cerr << "ComponentModel::import_from_basic_model: Could instantiate part " + partName << "\n";
@@ -1118,6 +1126,7 @@ std::vector<ComponentModelPtr> xtypes::ComponentModel::import_from_basic_model(c
                         break;
                     }
                     // Connect src and target interface
+                    // Now that we have a global registry, a connection could already be existent!
                     error_occurred = !fromInterface->connected_to(toInterface, conn);
                     if (error_occurred)
                     {
@@ -1163,16 +1172,21 @@ std::vector<ComponentModelPtr> xtypes::ComponentModel::import_from_basic_model(c
                             continue;
                         std::string connectionName = config["name"].get<std::string>();
                         bool found = false;
-                        for (const auto p : parts)
+                        for (const auto &p : parts)
                         {
                             for (const auto &[pi, _] : p->get_facts("interfaces"))
                             {
-                                for (auto &[o, props] : pi.lock()->get_facts("others"))
+                                XTypeCPtr src_interface = pi.lock();
+                                for (const auto &[o, props] : src_interface->get_facts("others"))
                                 {
                                     if (props["name"].get<std::string>() != connectionName)
                                         continue;
                                     found = true;
-                                    props["configuration"] = config;
+                                    // NOTE: We reinsert the same fact to update the edge properties
+                                    XTypeCPtr dst_interface = o.lock();
+                                    nl::json new_props = props;
+                                    new_props["configuration"] = config;
+                                    src_interface->add_fact("others", dst_interface, new_props);
                                 }
                             }
                         }
@@ -1204,16 +1218,21 @@ std::vector<ComponentModelPtr> xtypes::ComponentModel::import_from_basic_model(c
                 {
                     ifModelDomain = modelIf["domain"].get<std::string>();
                 }
-                // TODO: Actually, the InterfaceModel has to be looked up FIRST (by load_missing_interface_model or such) and only created if not found
-                InterfaceModelPtr ifModel = model->registry->instantiate<InterfaceModel>();
-                ifModel->set_properties({{"name", ifModelName},
+                // First create a dummy and try to load it before creating it new
+                InterfaceModel dummy;
+                dummy.set_properties({{"name", ifModelName},
                                          {"domain", ifModelDomain}});
+                InterfaceModelPtr ifModel = std::static_pointer_cast<InterfaceModel>(registry->load_by_uri(dummy.uri()));
+                if (!ifModel)
+                {
+                    // create a new interface model
+                    ifModel = registry->instantiate<InterfaceModel>();
+                    ifModel->set_properties(dummy.get_properties());
+                }
                 // Then we instantiate from it
                 InterfacePtr interface = ifModel->instantiate(model, modelIf["name"].get<std::string>());
                 // ... and update the properties
                 interface->set_properties(modelIf, false);
-                // Afterwards we make the interface an interface of the model
-                model->has((InterfacePtr)interface);
 
                 // Handle alias interfaces
                 // Set original to empty first
@@ -1274,16 +1293,21 @@ std::vector<ComponentModelPtr> xtypes::ComponentModel::import_from_basic_model(c
                 {
                     ifModelDomain = modelIf["domain"].get<std::string>();
                 }
-                // TODO: Actually, the InterfaceModel has to be looked up FIRST (by load_missing_interface_model or such) and only created if not found
-                InterfaceModelPtr ifModel = model->registry->instantiate<InterfaceModel>();
-                ifModel->set_properties({{"name", ifModelName},
+                // First create a dummy and try to load it before creating it new
+                InterfaceModel dummy;
+                dummy.set_properties({{"name", ifModelName},
                                          {"domain", ifModelDomain}});
+                InterfaceModelPtr ifModel = std::static_pointer_cast<InterfaceModel>(registry->load_by_uri(dummy.uri()));
+                if (!ifModel)
+                {
+                    // create a new interface model
+                    ifModel = registry->instantiate<InterfaceModel>();
+                    ifModel->set_properties(dummy.get_properties());
+                }
                 // Then we instantiate from it
                 DynamicInterfacePtr interface = ifModel->instantiate_dynamic(model); // HERE
                 // ... and update the properties
                 interface->set_properties(modelIf, false);
-                // Afterwards we make the interface an interface of the model
-                model->has(interface);
             }
         }
 
@@ -1318,8 +1342,8 @@ void xtypes::ComponentModel::add_parts(xtypes::ComponentCPtr xtype, const nl::js
     {
         throw std::runtime_error("xtypes::ComponentModel::add_parts: Trying to add parts to a ComponentModel, that is defined to not have parts!");
     }
-    // Finally call the overridden method
-    this->_ComponentModel::add_parts(xtype, props);
+    // NOTE: We cannot call add_parts() here, we have to call inversly because the part uri might not be valid yet
+    xtype->add_whole(std::static_pointer_cast<ComponentModel>(shared_from_this()));
 }
 
 void xtypes::ComponentModel::add_abstracts(xtypes::ComponentModelCPtr xtype, const nl::json& props)

@@ -64,7 +64,6 @@ methods:
       type: STRING
 
   get_type:
-    const: True
     returns:
       type: XTYPE(InterfaceModelPtr)
     description: "Returns the model of which this interface has been instantiated from"
@@ -86,6 +85,14 @@ methods:
       - name: interface
         type: XTYPE(Interface)
     description: "This functions marks this interface as being an alias of another interface. This is used to export internal interfaces of a component model to the exterior."
+
+  is_connected_to:
+    arguments:
+      - name: other
+        type: XTYPE(Interface)
+    returns:
+      type: BOOLEAN
+    description: "Returns true if this interface is connected to the other interface"
 
   connected_to:
     arguments:

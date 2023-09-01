@@ -47,7 +47,7 @@ methods:
         default: "\"MULTIPLICITY_NOT_SET\""
       - name: with_empty_facts
         type: BOOLEAN
-        default: false
+        default: true
     returns:
       type: XTYPE(InterfacePtr)
     description: "This function instantiates a new interface instance for a component model"
@@ -64,13 +64,12 @@ methods:
         default: "\"MULTIPLICITY_NOT_SET\""
       - name: with_empty_facts
         type: BOOLEAN
-        default: false
+        default: true
     returns:
       type: XTYPE(DynamicInterfacePtr)
     description: "This function instantiates a new dynamic interface instance for a component model"
 
   get_types:
-    const: True
     returns:
       type: VECTOR(XTYPE(InterfaceModelPtr))
     description: "Returns all the superclasses of this model (transitive closure over superclass_of relation)"

@@ -15,15 +15,6 @@ using namespace xtypes;
 xtypes::DynamicInterface::DynamicInterface(const std::string& classname) : _DynamicInterface(classname)
 {
     // NOTE: Properties and relations have been created in _DynamicInterface constructor
-    // Here, we register ourselves and the xtypes we use to our registry
-    registry->register_class<Component>();
-
-    registry->register_class<ComponentModel>();
-
-    registry->register_class<Interface>();
-
-    registry->register_class<InterfaceModel>();
-
 }
 
 // Static identifier
@@ -33,11 +24,11 @@ const std::string xtypes::DynamicInterface::classname = "xtypes::DynamicInterfac
 // This function returns the domain of the interface
 std::string xtypes::DynamicInterface::get_domain()
 {
-    return (this->get_facts("model")[0].target.lock())->get_property("domain").get<std::string>();
+    return (this->get_type()->get_domain());
 }
 
 // Returns the model of which this interface has been instantiated from
-InterfaceModelPtr xtypes::DynamicInterface::get_type() const
+InterfaceModelPtr xtypes::DynamicInterface::get_type()
 {
     return (std::static_pointer_cast<InterfaceModel>(this->get_facts("model")[0].target.lock()));
 }
@@ -53,9 +44,15 @@ InterfacePtr xtypes::DynamicInterface::instantiate(const ComponentPtr for_compon
         throw std::invalid_argument("xtypes::DynamicInterface::instantiate(): Component model of dynamic interface does not match the model of the component");
     }
 
+    XTypeRegistryPtr reg = registry.lock();
+    if (!reg)
+    {
+        throw std::runtime_error(this->get_classname()+"::instantiate(): No registry");
+    }
+
     // Create a new interface
     const xtypes::InterfaceModelPtr interface_model(std::static_pointer_cast<InterfaceModel>(this->get_facts("model")[0].target.lock()));
-    InterfacePtr interf = for_component->registry->instantiate<Interface>();
+    InterfacePtr interf = reg->instantiate<Interface>();
     if (with_empty_facts)
     {
         interf->set_all_unknown_facts_empty();

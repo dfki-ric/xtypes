@@ -17,7 +17,6 @@ def main():
     parser.add_argument('-a', '--db_address', help="The url/local path to the db", required=True) 
     parser.add_argument('-g', '--db_graph', help="The name of the database graph to be used", required=True)
     # tool specific args 
-    parser.add_argument('-m', '--max_depth', help="The maximum depth to which dependencies are resolved and imported", type=int, default=-1)
     parser.add_argument('json_file', help="The JSON file which contains the (top-level) Xtype specification, format xxx.json")
     
     args = None
@@ -32,34 +31,36 @@ def main():
 
     print(f"Accessing database at {args.db_address}")
     dbi = xdbi_py.db_interface_from_config(registry, config={"type":args.db_backend, "address": args.db_address, "graph": args.db_graph}, read_only=False)
+
     file_name = os.path.abspath(args.json_file)
-    path,xtype_uuid = os.path.split(file_name)
+    path, xtype_uuid = os.path.split(file_name)
+    xtype_uuid = os.path.splitext(xtype_uuid)[0]
     print(f"Import path set to {path}")
 
-    recursion_limit=args.max_depth
-    print(f"Recursion depth limited to {recursion_limit}")
-    xtype_uuid = os.path.splitext(xtype_uuid)[0]
-    successful = True
-
-    def load_model_by_uri(uri):
+    def load_by_uri(uri) -> xtypes_py.XType:
         uuid = xtypes_py.uri_to_uuid(uri)
         fname = os.path.join(path, f"{str(uuid)}.json")
         with open(fname, 'r') as import_file:
             print(f"Importing {fname}")
-            return json.loads(import_file.read())
+            spec = json.loads(import_file.read())
+            xtype = xtypes_py.XType.import_from(spec, registry)
+            return xtype
         return None
+    registry.set_load_func(load_by_uri)
 
     with open(file_name, 'r') as import_file:
         toplvl_spec = json.loads(import_file.read())
     xtype_uri = toplvl_spec['uri']
-    xtype = xtypes_py.XType.import_from(xtype_uri, load_spec_by_uri=load_model_by_uri, project_registry=registry, recursion_limit=recursion_limit)
-    successful = True
+    xtype = xtypes_py.XType.import_from(xtype_uri, registry)
+    if not xtype:
+        print(f"Could not import {xtype_uri}")
+        sys.exit(2)
+
     print(f"Adding/updating {xtype_uri} to/in graph database")
     dbi.update([xtype])
     
-    if successful:
-        script_name = sys.argv[0]
-        print(f"{script_name} executed successfully")
+    script_name = sys.argv[0]
+    print(f"{script_name} executed successfully")
 
 if __name__ == '__main__':
     main()

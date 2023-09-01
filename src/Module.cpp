@@ -11,11 +11,6 @@ using namespace xtypes;
 xtypes::Module::Module(const std::string& classname) : _Module(classname)
 {
     // NOTE: Properties and relations have been created in _Module constructor
-    // Here, we register ourselves and the xtypes we use to our registry
-    registry->register_class<ComponentModel>();
-
-    registry->register_class<Module>();
-
 }
 
 // Static identifier

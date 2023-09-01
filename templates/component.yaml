@@ -33,7 +33,6 @@ uri:
 
 methods:
   get_type:
-    const: True
     returns:
       type: XTYPE(ComponentModelPtr)
     description: "Returns the model of which this component has been instantiated from"
