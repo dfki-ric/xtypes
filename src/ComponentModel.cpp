@@ -702,14 +702,14 @@ std::string xtypes::ComponentModel::export_to_basic_model()
     if (get_abstract())
     {
         data["implementations"] = nl::json::array();
+        this->set_unknown_fact_empty("implementations");
         for (const auto &model : get_implementations())
         {
             data["implementations"].push_back({{"name", model->get_property("name")}, {"domain", model->get_property("domain")}, {"version", model->get_property("version")}});
         }
     }
 
-
-    //data["abstracts"] = nl::json::array();
+    this->set_unknown_fact_empty("abstracts");
     for (const auto &supermodel : get_abstracts())
     {
         data["abstracts"].push_back({{"name", supermodel->get_property("name")}, {"domain", supermodel->get_property("domain")}, {"version", supermodel->get_property("version")}});
@@ -719,7 +719,7 @@ std::string xtypes::ComponentModel::export_to_basic_model()
     for (const auto &[ti, _] : this->get_facts("interfaces"))
     {
         const InterfacePtr this_interface(std::static_pointer_cast<Interface>(ti.lock()));
-        this_interface->set_all_unknown_facts_empty();
+        this_interface->set_unknown_fact_empty("interfaces_of_abstracts");
         for (const auto &[ai, _] : this_interface->get_facts("interfaces_of_abstracts"))
         {
             const InterfacePtr abstract_interface(std::static_pointer_cast<Interface>(ai.lock()));
@@ -731,6 +731,7 @@ std::string xtypes::ComponentModel::export_to_basic_model()
             ioa["abstract_interface_type"] = abstract_interface->get_type()->get_property("name");
             data["interfaces_of_abstracts"].push_back(ioa);
         }
+    
     }
     nl::json version;
     version["name"] = get_version();
@@ -755,7 +756,7 @@ std::string xtypes::ComponentModel::export_to_basic_model()
         }
     }
 
-    if (const nl::json self_data = this->get_data(); !self_data.empty()) // self.data != data
+    if (const nl::json self_data = this->get_data(); !self_data.empty()) 
     {
         version["data"] = self_data;
     }
