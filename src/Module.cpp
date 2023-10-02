@@ -45,7 +45,7 @@ void xtypes::Module::part_of(const ModulePtr whole)
 void xtypes::Module::apply_global_variables(const nl::json& global_variables)
 {
     nl::json vars = this->get_global_variables(global_variables);
-    if (!vars || (vars.size() < 1))
+    if (!vars.is_object() || (vars.size() < 1))
         return;
     std::string configuration = inja::render(this->get_configuration().dump(), vars);
     this->set_configuration(nl::json::parse(configuration));
