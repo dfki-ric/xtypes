@@ -15,12 +15,12 @@ def main():
     parser.add_argument('-b', '--db_backend', help="Database backend to be used", choices=backends, default=backends[0]) 
     parser.add_argument('-a', '--db_address', help="The url/local path to the db", required=True) 
     parser.add_argument('-g', '--db_graph', help="The name of the database graph to be used", required=True) 
-    parser.add_argument('-m', '--model_name', help="Name of the model to update in the database", required=True) 
-    parser.add_argument('-v', '--model_version', help="The version to set by default [%(default)s]", default='v0.0.1') 
-    parser.add_argument('-d', '--model_domain', help="The domain of the model [%(default)s]", choices=xtypes_py.ComponentModel().get_allowed_property_values("domain"), default='SOFTWARE') 
+    parser.add_argument('-m', '--model_name', help="Name of the model to update in the database") 
+    parser.add_argument('-v', '--model_version', help="The version to set by default [%(default)s]") 
+    parser.add_argument('-d', '--model_domain', help="The domain of the model [%(default)s]", choices=xtypes_py.ComponentModel().get_allowed_property_values("domain")) 
     # tool specific args
     parser.add_argument('-V','--verbose', dest="verbose", help="Print-out additional information about found xtypes", action="store_true")
-    parser.add_argument('-c','--classname',  help="The name of the Xtype-derived class [%(default)s]", default="ComponentModel")
+    parser.add_argument('-c','--classname',  help="The name of the Xtype-derived class [%(default)s]", default="")
     
     parser.set_defaults(verbose=False)
     args = None
@@ -42,7 +42,11 @@ def main():
         print(f"Finding Xtype(s) in graph {args.db_graph}")
     properties = {}
     if args.model_name is not None:
-        properties = {"name": args.model_name, "domain": args.model_domain, "version": args.model_version}
+        properties["name"] = args.model_name
+    if args.model_domain is not None:
+        properties["domain"] = args.model_domain
+    if args.model_version is not None:
+        properties["version"] = args.model_version
     xtypes = dbi.find(classname=args.classname, properties = properties)
     
     if not xtypes:
