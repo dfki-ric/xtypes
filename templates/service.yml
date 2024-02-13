@@ -4,7 +4,7 @@ properties:
         type: STRING
         default: "\"UNKNOWN\""
 relations:
-    needs:
+    needed_capabilities:
         type: needs
         other_classnames:
             - Capability
