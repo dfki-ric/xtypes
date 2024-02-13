@@ -104,9 +104,6 @@ def main():
             else:
                 continue
 
-    print("\nXType to be added:")
-    print(xtype.export_to_basic_model(), end="\n\n")
-
     user_input = input("Do you want to proceed? [y/n]: ")
     if user_input.lower() != 'y':
         sys.exit(2)
