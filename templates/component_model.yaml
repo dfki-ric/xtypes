@@ -72,6 +72,8 @@ relations:
     type: annotates
     other_classnames:
       - ExternalReference
+    properties:
+        optional: true
     inverse: True
   capabilites:
       type: has

@@ -90,17 +90,8 @@ bool xtypes::Interface::connected_to(const InterfacePtr interface, const nl::jso
         return false;
     }
 
-    // create JSON object
-    nl::json allowed_properties = {{"name", "UNKNOWN"}, {"type", "CONNECTS_TO"}, {"configuration", ""}, {"data", ""}};
-    for (const auto &[k, _] : properties.items())
-    {
-        if (allowed_properties.find(k) != allowed_properties.end())
-        {
-            allowed_properties[k] = properties[k];
-        }
-    }
     // NOTE: Our setters have been disabled and would throw, so we have to call the base class functions here
-    this->_Interface::add_others(interface, allowed_properties);
+    this->_Interface::add_others(interface, properties);
     return true;
 }
 

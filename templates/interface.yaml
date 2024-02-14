@@ -23,12 +23,22 @@ relations:
     other_classnames:
       - Interface
     advanced_setter: true
+    properties:
+        name: "UNKNOWN"
+        type: "CONNECTS_TO"
+        configuration: ""
+        data: ""
   from_others:
     type: connected_to
     other_classnames:
       - Interface
     inverse: true
     advanced_setter: true
+    properties:
+        name: "UNKNOWN"
+        type: "CONNECTS_TO"
+        configuration: ""
+        data: ""
   original:
     type: alias_of
     other_classnames:
