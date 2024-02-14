@@ -20,6 +20,8 @@ relations:
     type: annotates
     other_classnames:
       - ComponentModel
+    properties:
+        optional: true
 methods:
   load:
     arguments:
