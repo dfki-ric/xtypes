@@ -8,6 +8,8 @@ relations:
         type: needs
         other_classnames:
             - Capability
+        properties:
+            cardinality: 1
 uri:
     # This should build "http://rock-robotics.org/2014/01/om-schema/<name>"
     scheme: "http"
