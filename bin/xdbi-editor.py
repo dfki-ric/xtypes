@@ -197,11 +197,27 @@ def info_of(xtype):
 def main():
     backends = xdbi_py.get_available_backends()
 
+    config = {
+            "type": "MultiDbClient",
+            "config":
+                {
+                    "import_servers": [],
+                    "main_server":
+                        {
+                            "type": None,
+                            "address": None,
+                            "graph": None
+                        }
+                }
+            }
+
     parser = argparse.ArgumentParser(description='Interactive CLI to add/edit Xtype(s) in an XROCK database')
     # xdbi specific args
     parser.add_argument('-b', '--db_backend', help="Database backend to be used", choices=backends, default=backends[0])
     parser.add_argument('-a', '--db_address', help="The url/local path to the db", required=True)
     parser.add_argument('-g', '--db_graph', help="The name of the database graph to be used", required=True)
+    parser.add_argument('-l', '--no_lookup', help="If set, the main server will NOT be used for lookup", action="store_true")
+    parser.add_argument('-i', '--import_server', help="Specify an import server for additional lookup (format: <backend>,<address>,<graph>)", action="append", type=str)
 
     args = None
     try:
@@ -209,14 +225,30 @@ def main():
     except SystemExit:
         sys.exit(1)
 
+    config["config"]["main_server"]["type"] = args.db_backend
+    config["config"]["main_server"]["address"] = args.db_address
+    config["config"]["main_server"]["graph"] = args.db_graph
+    import_servers = args.import_server
+    if import_servers:
+        for import_server in import_servers:
+            b,a,g = import_server.split(",", 2)
+            config["config"]["import_servers"].append( {"type": b.strip(), "address": a.strip(), "graph": g.strip() } )
+    if not args.no_lookup:
+        config["config"]["import_servers"].append( { "name": "main", "type": args.db_backend, "address": args.db_address, "graph": args.db_graph } )
+
+
     # Acesss the database
     registry = xtypes_py.ProjectRegistry()   
-    dbi = xdbi_py.db_interface_from_config(registry, config={"type":args.db_backend, "address": args.db_address, "graph": args.db_graph}, read_only=False)
+    dbi = xdbi_py.db_interface_from_config(registry, config=config, read_only=False)
+
+    print(f"{parser.description}")
 
     # Editor loop
     while True:
         # Ask the user if he wants to create a new XType or edit an existing one
-        add_or_edit = input("Do you want to create a new or edit an existing XType? [c: create, e: edit, q: quit]: ")
+        add_or_edit = input("Do you want to create a new or edit an existing XType? [c: create, e: edit, ENTER: quit]: ")
+        if not add_or_edit:
+            break
         if add_or_edit == "c":
             # Select class
             selected_class = select_class_from(registry)
@@ -237,7 +269,6 @@ def main():
                     print("Stored :)")
                 else:
                     print("Could not store to database :(")
-
         elif add_or_edit == "e":
             # Select class
             selected_class = select_class_from(registry)
@@ -250,7 +281,10 @@ def main():
                 continue
             for i, xtype in enumerate(existing_xtypes):
                 print(f"{i}. {xtype.uri()}")
-            index = int(input(f"Please select one of the XTypes above to edit by number [0-{len(existing_xtypes)-1}]: "))
+            index = input(f"Please select one of the XTypes above to edit by number [0-{len(existing_xtypes)-1}]: ")
+            if not index:
+                continue
+            index = int(index)
             if index < 0 or index >= len(existing_xtypes):
                 continue
             selected_xtype = existing_xtypes[index]
@@ -268,10 +302,6 @@ def main():
                     print("Stored :)")
                 else:
                     print("Could not store to database :(")
-
-        elif add_or_edit == "q":
-            # Quit
-            break
         else:
             # Start over
             print("W00t?")
