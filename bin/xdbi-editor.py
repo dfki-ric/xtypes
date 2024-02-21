@@ -20,7 +20,7 @@ def select_class_from(reg):
     known_classes = sorted(list(reg.get_classnames()))
     for i, x in enumerate(known_classes):
         print(f"{i}. {x}")
-    selected_class_index = input("Which class of XTypes do you want to add/edit? [0-{len(known_classes)-1}]: ")
+    selected_class_index = input(f"Which class of XTypes do you want to add/edit? [0-{len(known_classes)-1}]: ")
     if not selected_class_index:
         return None
     selected_class_index = int(selected_class_index)
