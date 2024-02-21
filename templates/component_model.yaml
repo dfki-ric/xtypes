@@ -75,6 +75,10 @@ relations:
     properties:
         optional: true
     inverse: True
+  capabilites:
+      type: has
+      other_classnames:
+          - Capability
 uri:
   scheme: drock
   root_path:  /
