@@ -1,5 +1,6 @@
 import unittest
-from xtypes_py import ComponentModel, InterfaceModel, XType, Component, ProjectRegistry
+from xtypes_generator_py import XType
+from xtypes_py import ComponentModel, InterfaceModel, Component, ProjectRegistry
 
 
 class TestComponentModel(unittest.TestCase):
