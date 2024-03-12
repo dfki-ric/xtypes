@@ -9,7 +9,9 @@ relations:
         other_classnames:
             - Capability
         properties:
-            cardinality: 1
+            cardinality:
+                type: INTEGER
+                default: 1
 uri:
     # This should build "http://rock-robotics.org/2014/01/om-schema/<name>"
     scheme: "http"

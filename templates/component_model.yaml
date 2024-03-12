@@ -73,7 +73,9 @@ relations:
     other_classnames:
       - ExternalReference
     properties:
-        optional: true
+        optional:
+            type: BOOLEAN
+            default: True
     inverse: True
   capabilites:
       type: has

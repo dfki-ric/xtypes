@@ -21,7 +21,9 @@ relations:
     other_classnames:
       - ComponentModel
     properties:
-        optional: true
+        optional:
+            type: BOOLEAN
+            default: true
 methods:
   load:
     arguments:
