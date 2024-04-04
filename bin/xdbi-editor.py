@@ -99,11 +99,12 @@ def edit_facts(dbi, xtype):
             print(f" {relname}:")
             if not xtype.has_facts(relname):
                 print("UNKNOWN")
-            facts = xtype.get_facts(relname)
-            if len(facts) < 1:
-                print("EMPTY")
-            for fact in facts:
-                print(f"  - {fact.edge_properties} -> {fact.target.uri()}")
+            else:
+                facts = xtype.get_facts(relname)
+                if len(facts) < 1:
+                    print("EMPTY")
+                for fact in facts:
+                    print(f"  - {fact.edge_properties} -> {fact.target.uri()}")
         relname = input("Which relation do you want to modify? ENTER will skip: ")
         if not relname:
             print("Done")
@@ -188,11 +189,12 @@ def info_of(xtype):
         print(f" {relname}:")
         if not xtype.has_facts(relname):
             print("UNKNOWN")
-        facts = xtype.get_facts(relname)
-        if len(facts) < 1:
-            print("EMPTY")
-        for fact in facts:
-            print(f"  - {fact.edge_properties} -> {fact.target.uri()}")
+        else:
+            facts = xtype.get_facts(relname)
+            if len(facts) < 1:
+                print("EMPTY")
+            for fact in facts:
+                print(f"  - {fact.edge_properties} -> {fact.target.uri()}")
 
 def main():
     backends = xdbi_py.get_available_backends()
