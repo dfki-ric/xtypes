@@ -24,10 +24,16 @@ relations:
       - Interface
     advanced_setter: true
     properties:
-        name: "UNKNOWN"
-        type: "CONNECTS_TO"
-        configuration: ""
-        data: ""
+        name: 
+            type: STRING
+            default: "\"UNKNOWN\""
+        type:
+            type: STRING
+            default: "\"CONNECTS_TO\""
+        configuration:
+            type: JSON
+        data:
+            type: JSON
   from_others:
     type: connected_to
     other_classnames:
@@ -35,10 +41,16 @@ relations:
     inverse: true
     advanced_setter: true
     properties:
-        name: "UNKNOWN"
-        type: "CONNECTS_TO"
-        configuration: ""
-        data: ""
+        name: 
+            type: STRING
+            default: "\"UNKNOWN\""
+        type:
+            type: STRING
+            default: "\"CONNECTS_TO\""
+        configuration:
+            type: JSON
+        data:
+            type: JSON
   original:
     type: alias_of
     other_classnames:
