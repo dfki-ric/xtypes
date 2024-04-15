@@ -81,6 +81,15 @@ relations:
       type: has
       other_classnames:
           - Capability
+  configured_for:
+      type: configured_for
+      other_classnames:
+          - ComponentModel
+  configured_models:
+      type: configured_for
+      other_classnames:
+          - ComponentModel
+      inverse: True
 uri:
   scheme: drock
   root_path:  /
