@@ -85,7 +85,7 @@ relations:
       type: configured_for
       other_classnames:
           - ComponentModel
-  configured_models:
+  deployables:
       type: configured_for
       other_classnames:
           - ComponentModel
