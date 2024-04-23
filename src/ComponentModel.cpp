@@ -1401,3 +1401,28 @@ void xtypes::ComponentModel::add_implementations(xtypes::ComponentModelCPtr xtyp
     // Finally call the overridden method
     this->_ComponentModel::add_implementations(xtype, props);
 }
+
+bool xtypes::ComponentModel::can_configure(const ComponentModelPtr xtype) 
+{
+    return (this->get_property("domain") == "SOFTWARE" && xtype->get_property("domain") == "ASSEMBLY");
+}
+
+void xtypes::ComponentModel::add_configured_for(xtypes::ComponentModelCPtr xtype, const nl::json &props)
+{
+    if (!can_configure(xtype))
+    {
+        throw std::runtime_error("xtypes::_ComponentModel::add_configured_for(): Given xtype is not valid for configuration");
+    }
+    // Finally call the overridden method
+    this->_ComponentModel::add_configured_for(xtype, props);
+}
+
+void xtypes::ComponentModel::add_deployables(xtypes::ComponentModelCPtr xtype, const nl::json &props)
+{
+    if (!xtype->can_configure(std::static_pointer_cast<ComponentModel>(shared_from_this())))
+    {
+        throw std::runtime_error("xtypes::_ComponentModel::add_deployables(): Given xtype is not valid for deployment");
+    }
+    // Finally call the overridden method
+    this->_ComponentModel::add_deployables(xtype, props);
+}
