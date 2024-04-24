@@ -848,6 +848,39 @@ TEST_CASE("Test abstract and concrete component models", "AbstractComponentModel
     }
 }
 
+TEST_CASE("Test can_configure function", "[ComponentModel]")
+{
+    XTypeRegistryPtr pr = std::make_shared<ProjectRegistry>();
+    ComponentModelPtr softwareComponentModel = pr->instantiate<ComponentModel>();
+    softwareComponentModel->set_property("domain", "SOFTWARE");
+
+    ComponentModelPtr AssemblyComponentModel = pr->instantiate<ComponentModel>();
+    AssemblyComponentModel->set_property("domain", "ASSEMBLY");
+
+    SECTION("checks valid state when software can configure hardware")
+    {
+        bool isValid = softwareComponentModel->can_configure(AssemblyComponentModel);
+        REQUIRE(isValid == true);
+    }
+
+    SECTION("checks invalid state when Assembly tried to be configured by non Software")
+    {
+        bool isValid = AssemblyComponentModel->can_configure(AssemblyComponentModel);
+        REQUIRE(isValid == false);
+    }
+    
+    SECTION("Throws error when configuring for COMPUTATION domain")
+    {
+        ComponentModelPtr ComputationComponent = pr->instantiate<ComponentModel>();
+        ComputationComponent->set_property("domain", "COMPUTATION");
+        REQUIRE_THROWS_AS(
+            softwareComponentModel->add_configured_for(ComputationComponent, {}),
+            std::runtime_error);
+        REQUIRE_NOTHROW(
+            softwareComponentModel->add_configured_for(AssemblyComponentModel, {})
+        );
+    }
+}
 TEST_CASE("Test ExternalReference class interface", "ExternalReference")
 {
     XTypeRegistryPtr pr = std::make_shared<ProjectRegistry>();

@@ -81,6 +81,17 @@ relations:
       type: has
       other_classnames:
           - Capability
+  configured_for:
+      type: configured_for
+      other_classnames:
+          - ComponentModel
+      advanced_setter: true
+  deployables:
+      type: configured_for
+      other_classnames:
+          - ComponentModel
+      inverse: True
+      advanced_setter: true
 uri:
   scheme: drock
   root_path:  /
@@ -271,3 +282,10 @@ methods:
         default: true
     description: "Annotates the ComponentModel with an optional or needed ExternalReference. Calls _ComponentModel::add_external_references internally"
 
+  can_configure:
+    arguments:
+      - name: other
+        type: XTYPE(ComponentModel)
+    returns:
+      type: BOOLEAN
+    description: "This function determines whether a software ComponentModel can configure an Assembly ComponentModel,indicating compatibility for configuration."
