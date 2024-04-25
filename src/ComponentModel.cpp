@@ -1357,6 +1357,56 @@ std::vector<ComponentModelPtr> xtypes::ComponentModel::import_from_basic_model(c
     return result;
 }
 
+InterfacePtr xtypes::ComponentModel::export_inner_interface(xtypes::InterfacePtr inner_interface)
+{
+    const auto inner_interface_name = inner_interface->get_name();
+    const auto parent = std::static_pointer_cast<Component>(inner_interface->get_facts("parent")[0].target.lock());
+
+    // Check if inner interface is already exported
+    InterfacePtr outer_interface{nullptr};
+    for (const auto& modelIf : this->get_interfaces())
+    {
+        if (!modelIf->has_relation("original") || !modelIf->has_same_type(inner_interface)) {
+            continue;
+        }
+        for (const auto &[i, _] : modelIf->get_facts("original"))
+        {
+            const InterfacePtr original_iface(std::static_pointer_cast<Interface>(i.lock()));
+            if (original_iface->uri() == inner_interface->uri())
+            {
+                outer_interface = std::move(modelIf);
+                std::cout << "Found existing interface " << outer_interface->get_name() << " for " << this->get_name() << "\n";
+                break;
+            }
+        }
+    }
+
+    if (outer_interface)
+    {
+        outer_interface->alias_of(inner_interface);
+        return outer_interface;
+    }
+
+    // Create new interface as a clone of the inner interface
+    XTypeRegistryPtr reg = registry.lock();
+    if (!reg)
+    {
+        throw std::invalid_argument("ComponentModel::export_inner_interface: no registry");
+    }
+    const auto new_name = parent->get_name() + ":" + inner_interface_name;
+    std::cout << "Creating new interface " << new_name << " for " << this->get_name() << "\n";
+    
+    const InterfaceModelPtr model(inner_interface->get_type());
+    InterfacePtr interface = std::static_pointer_cast<Interface>(reg->instantiate<Interface>());
+    interface->set_all_unknown_facts_empty();
+    interface->set_properties(inner_interface->get_properties());
+    interface->set_property("name", new_name);
+    interface->child_of(shared_from_this());
+    interface->alias_of(inner_interface);
+    interface->instance_of(model);
+    return interface;
+}
+
 // Annotates the ComponentModel with an optional or needed ExternalReference. Calls _ComponentModel::add_external_references internally
 void xtypes::ComponentModel::annotate_with(const ExternalReferencePtr reference, const bool& optional)
 {
