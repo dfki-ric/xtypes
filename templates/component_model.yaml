@@ -225,6 +225,9 @@ methods:
     arguments:
       - name: inner_interface
         type: XTYPE(Interface)
+      - name: with_empty_facts
+        type: BOOLEAN
+        default: false
     returns:
       type: XTYPE(InterfacePtr)
     description: "This function exports an inner interface to the ComponentModel's interfaces"

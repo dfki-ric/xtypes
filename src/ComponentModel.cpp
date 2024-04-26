@@ -1357,7 +1357,7 @@ std::vector<ComponentModelPtr> xtypes::ComponentModel::import_from_basic_model(c
     return result;
 }
 
-InterfacePtr xtypes::ComponentModel::export_inner_interface(xtypes::InterfacePtr inner_interface)
+InterfacePtr xtypes::ComponentModel::export_inner_interface(xtypes::InterfacePtr inner_interface, const bool& with_empty_facts)
 {
     const auto inner_interface_name = inner_interface->get_name();
     const auto parent = std::static_pointer_cast<Component>(inner_interface->get_facts("parent")[0].target.lock());
@@ -1397,14 +1397,18 @@ InterfacePtr xtypes::ComponentModel::export_inner_interface(xtypes::InterfacePtr
     std::cout << "Creating new interface " << new_name << " for " << this->get_name() << "\n";
     
     const InterfaceModelPtr model(inner_interface->get_type());
-    InterfacePtr interface = std::static_pointer_cast<Interface>(reg->instantiate<Interface>());
-    interface->set_all_unknown_facts_empty();
-    interface->set_properties(inner_interface->get_properties());
-    interface->set_property("name", new_name);
-    interface->child_of(shared_from_this());
-    interface->alias_of(inner_interface);
-    interface->instance_of(model);
-    return interface;
+    outer_interface = std::static_pointer_cast<Interface>(reg->instantiate<Interface>());
+
+    if (with_empty_facts)
+    {
+        outer_interface->set_all_unknown_facts_empty();
+    }
+    outer_interface->set_properties(inner_interface->get_properties());
+    outer_interface->set_property("name", new_name);
+    outer_interface->child_of(shared_from_this());
+    outer_interface->alias_of(inner_interface);
+    outer_interface->instance_of(model);
+    return outer_interface;
 }
 
 // Annotates the ComponentModel with an optional or needed ExternalReference. Calls _ComponentModel::add_external_references internally
