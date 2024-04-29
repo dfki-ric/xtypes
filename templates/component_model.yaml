@@ -232,6 +232,17 @@ methods:
       type: MAP(XTYPE(InterfacePtr), VECTOR(XTYPE(InterfacePtr)))
     description: "This functions resolves any interfaces of inner parts which do not match any of the parts' model interfaces and a list of possible future matches."
 
+  export_inner_interface:
+    arguments:
+      - name: inner_interface
+        type: XTYPE(Interface)
+      - name: with_empty_facts
+        type: BOOLEAN
+        default: false
+    returns:
+      type: XTYPE(InterfacePtr)
+    description: "This function exports an inner interface to the ComponentModel's interfaces"
+
   instantiate:
     arguments:
       - name: as_part_of_whole
