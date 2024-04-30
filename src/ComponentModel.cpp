@@ -733,6 +733,14 @@ std::string xtypes::ComponentModel::export_to_basic_model()
         }
     
     }
+    this->set_unknown_fact_empty("configured_for");
+    for (const auto &[h, _] : this->get_facts("configured_for"))
+    {
+        const xtypes::ComponentModelPtr hardware_model(std::static_pointer_cast<ComponentModel>(h.lock()));
+
+        data["configured_for"]
+            .push_back({{"name", hardware_model->get_property("name")},{"version", hardware_model->get_property("version")}, {"uri", hardware_model->uri()}});
+    }
     nl::json version;
     version["name"] = get_version();
     version["date"] = get_date();
@@ -895,6 +903,23 @@ std::vector<ComponentModelPtr> xtypes::ComponentModel::import_from_basic_model(c
         }
     }
 
+    // Resolve configured_for
+    std::vector<ComponentModelPtr> configured_for;
+    if (data.contains("configured_for"))
+    {
+        for (const auto &h : data["configured_for"])
+        {
+            nl::json props = nl::json{{"name", h["name"]}, {"version", h["version"]}, {"uri", h["uri"]}};
+            ComponentModelPtr hardware = std::static_pointer_cast<ComponentModel>(registry->load_by_uri(h["uri"]));
+            if (!hardware)
+            {
+                hardware = registry->instantiate<ComponentModel>();
+                hardware->set_properties(props);
+            }
+            configured_for.push_back(hardware);
+        }
+    }
+
     // Create model(s)
     if (!data.contains("versions"))
     {
@@ -927,6 +952,13 @@ std::vector<ComponentModelPtr> xtypes::ComponentModel::import_from_basic_model(c
         {
             // .. to subclass_of relation
             model->subclass_of(supermodel);
+        }
+
+        // Attach configured_for
+        for (auto &hardware : configured_for)
+        {
+            // .. to configured_for relation
+            model->add_configured_for(hardware);
         }
 
         // Handle defaultConfigurations
@@ -1411,7 +1443,7 @@ void xtypes::ComponentModel::add_configured_for(xtypes::ComponentModelCPtr xtype
 {
     if (!can_configure(xtype))
     {
-        throw std::runtime_error("xtypes::_ComponentModel::add_configured_for(): Given xtype is not valid for configuration");
+        throw std::runtime_error("xtypes::ComponentModel::add_configured_for(): Given xtype is not valid for configuration");
     }
     // Finally call the overridden method
     this->_ComponentModel::add_configured_for(xtype, props);
@@ -1421,8 +1453,30 @@ void xtypes::ComponentModel::add_deployables(xtypes::ComponentModelCPtr xtype, c
 {
     if (!xtype->can_configure(std::static_pointer_cast<ComponentModel>(shared_from_this())))
     {
-        throw std::runtime_error("xtypes::_ComponentModel::add_deployables(): Given xtype is not valid for deployment");
+        throw std::runtime_error("xtypes::ComponentModel::add_deployables(): Given xtype is not valid for deployment");
     }
     // Finally call the overridden method
     this->_ComponentModel::add_deployables(xtype, props);
+}
+std::vector<ComponentModelPtr> xtypes::ComponentModel::get_configured_for()
+{
+    std::vector<ComponentModelPtr> configuredFor;
+    auto facts = this->get_facts("configured_for");
+    configuredFor.reserve(facts.size());
+    for (const auto &[fact, _] : facts)
+    {
+        const ComponentModelPtr config = std::static_pointer_cast<ComponentModel>(fact.lock());
+        if (config)
+        {
+            configuredFor.push_back(config);
+        }
+    }
+    return configuredFor;
+}
+
+void xtypes::ComponentModel::remove_configured_for(ComponentModelPtr hardware)
+{
+    // Unlink this SOFTWARE with hardware ASSEMBLY
+    hardware->remove_fact("deployables", std::static_pointer_cast<ComponentModel>(shared_from_this()));
+    this->remove_fact("configured_for", hardware);
 }
