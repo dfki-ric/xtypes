@@ -733,13 +733,15 @@ std::string xtypes::ComponentModel::export_to_basic_model()
         }
     
     }
-    this->set_unknown_fact_empty("configured_for");
+    if(this->has_facts("configured_for"))
+    {
     for (const auto &[h, _] : this->get_facts("configured_for"))
     {
         const xtypes::ComponentModelPtr hardware_model(std::static_pointer_cast<ComponentModel>(h.lock()));
 
         data["configured_for"]
             .push_back({{"name", hardware_model->get_property("name")},{"version", hardware_model->get_property("version")}, {"uri", hardware_model->uri()}});
+    }
     }
     nl::json version;
     version["name"] = get_version();
@@ -1396,11 +1398,6 @@ void xtypes::ComponentModel::annotate_with(const ExternalReferencePtr reference,
     this->add_external_references(reference, edge_properties);
 }
 
-// Overrides for setters of properties
-
-// Overrides for relation setters
-
-
 void xtypes::ComponentModel::add_parts(xtypes::ComponentCPtr xtype, const nl::json& props)
 {
     // Add your advanced code here
@@ -1478,5 +1475,5 @@ void xtypes::ComponentModel::remove_configured_for(ComponentModelPtr hardware)
 {
     // Unlink this SOFTWARE with hardware ASSEMBLY
     hardware->remove_fact("deployables", std::static_pointer_cast<ComponentModel>(shared_from_this()));
-    this->remove_fact("configured_for", hardware);
+
 }
