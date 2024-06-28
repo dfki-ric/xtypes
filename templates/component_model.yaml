@@ -300,3 +300,14 @@ methods:
     returns:
       type: BOOLEAN
     description: "This function determines whether a software ComponentModel can configure an Assembly ComponentModel,indicating compatibility for configuration."
+
+  get_configured_for:
+    returns:
+      type: VECTOR(XTYPE(ComponentModelPtr))
+    description: "Returns the hardware ComponentModels directly linked to this Software ComponentModel"
+
+  remove_configured_for:
+    arguments:
+      - name: hardware
+        type: XTYPE(ComponentModel)
+    description: "Removes the configured_for link between a software ComponentModel and hardware ComponentModel"
