@@ -437,8 +437,23 @@ ModulePtr xtypes::ComponentModel::build(const std::string& with_name, const std:
             // An implementation has been chosen, so we set this as the new submodule_model
             submodule_model = impl;
         }
+
         ModulePtr submodule = reg->instantiate<Module>();
+
+        // Configuration is tricky:
+        // in general the submodule inherits the properties of the part
         submodule->set_properties(part->get_properties());
+        // but for the configuration this is not so easy (especially for abstract parts)
+        // at first, the component gets the default configuration of its TRUE model
+        nl::json submodule_config = submodule_model->get_defaultConfiguration();
+        // then that default config gets updated by the part config
+        nl::json part_config = part->get_configuration();
+        if (part_config.is_object())
+        {
+            submodule_config.update(part_config, true);
+        }
+        submodule->set_configuration(submodule_config);
+
         submodule->instance_of(submodule_model);
         submodule->part_of(parent_module);
         submodule2part[submodule] = part;
