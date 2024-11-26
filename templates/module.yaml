@@ -54,12 +54,18 @@ methods:
       - name: whole
         type: XTYPE(Module)
     description: "This function marks the module as being part of another module"
+  configure:
+    arguments:
+      - name: config_overrides
+        type: JSON
+        default: {}
+    description: "This function applies any pending configuration updates (except global variables) inside the module hierarchy (config_overrides overwrites lower level configuration values)"
   apply_global_variables:
     arguments:
       - name: global_variables
         type: JSON  # MAP(STRING, JSON)
         default: {}
-    description: "This functions will go through this Module and it's sub-Modules and resolve the global_variables in there configuration"
+    description: "This functions will go through this Module and it's sub-Modules and resolve the global_variables in their configurations"
   get_global_variables:
     arguments:
       - name: global_variables

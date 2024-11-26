@@ -41,6 +41,39 @@ void xtypes::Module::part_of(const ModulePtr whole)
     this->add_whole(whole);
 }
 
+// This function applies any pending configuration updates (except global variables) inside the module hierarchy (config_overrides overwrites lower level configuration values)
+void xtypes::Module::configure(const nl::json& config_overrides)
+{
+    nl::json new_config_overrides = config_overrides;
+    const std::string name_or_alias(this->get_alias().empty() ? this->get_name() : this->get_alias());
+    nl::json current_config = this->get_configuration();
+    // Apply config_overrides to our config if our name is present
+    // If present, remove that entry from config_overrides
+    if (new_config_overrides.contains(name_or_alias) && new_config_overrides[name_or_alias].is_object())
+    {
+        current_config.update(new_config_overrides[name_or_alias], true); // deep_merge
+        new_config_overrides.erase(name_or_alias);
+    }
+    // Check if a 'submodel' statement is present in our config (possibly updated before)
+    // If it is, remove it and put it into the config_overrides (do NOT resolve inner submodel statements)
+    if (current_config.contains("submodel"))
+    {
+        for (const auto& entry : current_config["submodel"])
+        {
+            new_config_overrides[entry["name"].get<std::string>()] = entry;
+        }
+        current_config.erase("submodel");
+    }
+    // Update our configuration
+    this->set_configuration(current_config);
+    // Call configure with the (possibly updates config_overrides) on all our submodules
+    for (const auto& [p, _] : this->get_facts("parts"))
+    {
+        const xtypes::ModulePtr part(std::static_pointer_cast<Module>(p.lock()));
+        part->configure(new_config_overrides);
+    }
+}
+
 // This functions will go through this Module and it's sub-Modules and resolve the global_variables in there configuration
 void xtypes::Module::apply_global_variables(const nl::json& global_variables)
 {
