@@ -362,6 +362,10 @@ ModulePtr xtypes::ComponentModel::build(const std::string& with_name, const std:
     {
         // We are abstract, so we need to get resolved first
         const std::vector< ComponentModelPtr >& implementations(this->get_implementations());
+        if (implementations.size() < 1)
+        {
+            throw std::invalid_argument("ComponentModel::build: " + this->uri() + " is abstract but has no implementations");
+        }
         if ((implementations.size() > 1) && !select_implementation)
         {
             throw std::invalid_argument("ComponentModel::build: " + this->uri() + " is abstract and has multiple implementations but callback func is missing");
@@ -424,6 +428,10 @@ ModulePtr xtypes::ComponentModel::build(const std::string& with_name, const std:
         {
             // We have encountered an abstract, which needs to be resolved first
             const std::vector< ComponentModelPtr >& implementations(part_model->get_implementations());
+            if (implementations.size() < 1)
+            {
+                throw std::invalid_argument("ComponentModel::build: " + part_model->uri() + " is abstract but has no implementations");
+            }
             if ((implementations.size() > 1) && !select_implementation)
             {
                 throw std::invalid_argument("ComponentModel::build: " + part_model->uri()
