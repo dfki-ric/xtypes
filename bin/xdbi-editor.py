@@ -9,11 +9,11 @@ import json
 
 def proceed(msg):
     print(msg)
-    choice = input("Do you want to proceed or skip? [s: skip, other: proceed]: ")
+    choice = input("Do you want to proceed or skip? [p: proceed, other: skip]: ")
     choice = choice.lower()
-    if choice == "s":
-        return False
-    return True
+    if choice == "p":
+        return True
+    return False
 
 def select_class_from(reg):
     print("*** Select class ***")
