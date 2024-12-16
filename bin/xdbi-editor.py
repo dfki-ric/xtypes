@@ -248,10 +248,10 @@ def main():
     # Editor loop
     while True:
         # Ask the user if he wants to create a new XType or edit an existing one
-        add_or_edit = input("Do you want to create a new or edit an existing XType? [c: create, e: edit, ENTER: quit]: ")
-        if not add_or_edit:
+        main_task = input("Do you want to create a new or edit an existing XType? [c: create, e: edit, d: delete, ENTER: quit]: ")
+        if not main_task:
             break
-        if add_or_edit == "c":
+        if main_task == "c":
             # Select class
             selected_class = select_class_from(registry)
             if not selected_class:
@@ -271,7 +271,7 @@ def main():
                     print("Stored :)")
                 else:
                     print("Could not store to database :(")
-        elif add_or_edit == "e":
+        elif main_task == "e":
             # Select class
             selected_class = select_class_from(registry)
             if not selected_class:
@@ -304,6 +304,31 @@ def main():
                     print("Stored :)")
                 else:
                     print("Could not store to database :(")
+        elif main_task == "d":
+            # Select class
+            selected_class = select_class_from(registry)
+            if not selected_class:
+                continue
+            # Select xtype to delete
+            existing_xtypes = dbi.find(classname=selected_class)
+            if len(existing_xtypes) < 1:
+                print(f"No XType of class {selected_class} exist in the database")
+                continue
+            for i, xtype in enumerate(existing_xtypes):
+                print(f"{i}. {xtype.uri()}")
+            index = input(f"Please select one of the XTypes above to delete by number [0-{len(existing_xtypes)-1}]: ")
+            if not index:
+                continue
+            index = int(index)
+            if index < 0 or index >= len(existing_xtypes):
+                continue
+            selected_xtype = existing_xtypes[index]
+            info_of(selected_xtype)
+            if proceed(f"Are you sure that you want to delete this XType?"):
+                if dbi.remove(selected_xtype.uri()):
+                    print("Removed!")
+                else:
+                    print("Could not remove the selected XType :(")
         else:
             # Start over
             print("W00t?")
