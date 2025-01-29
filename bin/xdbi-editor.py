@@ -82,7 +82,6 @@ def edit_dictionary(props):
     return modified
 
 def edit_properties(xtype):
-    # TODO: If a property is itself a dict, call edit_dictionary() on it
     print("*** Edit properties ***")
     current_props = xtype.get_properties()
     while 1:
@@ -108,6 +107,8 @@ def edit_properties(xtype):
                 user_input = allowed_values[option]
             except ValueError:
                 print("Invalid selection, using default value")
+        elif isinstance(current_props[k], dict):
+            edit_dictionary(current_props[k])
         else:
             user_input = input(f"Please provide value for '{k}' or press ENTER: ")
         if user_input:
