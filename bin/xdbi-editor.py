@@ -28,7 +28,61 @@ def select_class_from(reg):
         return None
     return known_classes[selected_class_index]
 
+def edit_dictionary(props):
+    print("*** Edit properties ***")
+    current_path = "/"
+    modified = False
+    while 1:
+        current_props = props.copy()
+        # Follow path to get to the correct property level
+        split = current_path.split("/",2)
+        while len(split) > 2:
+            key = split[1] # a  # b
+            path = "/" + split[2] # /b/c  # /c
+            current_props = current_props[key]
+            split = path.split("/",2) # "", b, c, # "", c
+
+        available_keys = current_props.keys()
+        print(f"{current_path}:")
+        for k in available_keys:
+            print(f"|--- {k}: {current_props[k]}")
+        k = input(f"Specify a key to add or edit: ")
+        if not k:
+            # Go back one level, but check if we got below root level "/"
+            split = current_path.rsplit("/", 2)
+            if len(split) < 3:
+                print("Done")
+                break
+            current_path = split[0] + "/"
+            continue
+        if k not in available_keys:
+            print(f"Adding new key {k}")
+            current_props[k] = None
+            continue
+
+        # TODO: ask if a key shall be deleted or edited!
+
+        # Here we have something like /a/b/c/ in current_path
+        current_path = current_path + k + "/"
+        if isinstance(current_props[k], dict):
+            continue
+
+        # We have a leaf value here, so we can ask the user to give us a new one
+        user_input = input(f"Please provide value for '{k}' or press ENTER: ")
+        if not user_input:
+            continue
+        if type(current_props[k]) is not None:
+            current_props[k] = type(current_props[k])(user_input)
+        else:
+            current_props[k] = user_input
+        # Go back one level
+        current_path = current_path.rsplit("/", 2)[0] + "/"
+        modified = True
+    print(f"{props}")
+    return modified
+
 def edit_properties(xtype):
+    # TODO: If a property is itself a dict, call edit_dictionary() on it
     print("*** Edit properties ***")
     current_props = xtype.get_properties()
     while 1:
@@ -136,29 +190,23 @@ def edit_facts(dbi, xtype):
             to_edit = select_fact(xtype, relname)
             if not to_edit:
                 continue
-            add_method = getattr(xtype, f"add_{relname}")
-            if not callable(add_method):
-                print("ERROR: Found non-callable add method!")
-                continue
+            #add_method = getattr(xtype, f"add_{relname}")
+            #if not callable(add_method):
+            #    print("ERROR: Found non-callable add method!")
+            #    continue
             # Edit edge properties
             current_props = to_edit.edge_properties
-            while 1:
-                for k,v in current_props.items():
-                    print(f" {k} = {v}")
-                k = input("Which property do you want to modify? ENTER will skip: ")
-                if not k:
-                    break
-                if k not in current_props:
-                    print(f"{k} is not a valid key!")
-                    continue
-                new_v = input(f"Please provide a new value for {k}: ")
-                current_props[k] = type(current_props[k])(new_v)
-            try:
-                add_method(to_edit.target, current_props)
-                print(f"Fact updated")
-            except Exception as e:
-                print(f"Failed to update fact")
-                print(e)
+            if current_props is None:
+                current_props = {}
+            modified = edit_dictionary(current_props)
+            if modified:
+                try:
+                    # FIXME: This currently only edits the current fact but does not update the inverse relation properties :( has to be fixed in XType::add_fact()
+                    xtype.add_fact(relname, to_edit.target, current_props)
+                    print(f"Fact updated")
+                except Exception as e:
+                    print(f"Failed to update fact")
+                    print(e)
         elif choice == "r":
             # Delete fact
             to_be_removed = select_fact(xtype, relname)
