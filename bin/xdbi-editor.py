@@ -42,6 +42,8 @@ def edit_dictionary(props):
             current_props = current_props[key]
             split = path.split("/",2) # "", b, c, # "", c
 
+        # TODO: Handle arrays!
+
         available_keys = current_props.keys()
         print(f"{current_path}:")
         for k in available_keys:
@@ -62,9 +64,9 @@ def edit_dictionary(props):
 
         # TODO: ask if a key shall be deleted or edited!
 
-        # Here we have something like /a/b/c/ in current_path
-        current_path = current_path + k + "/"
         if isinstance(current_props[k], dict):
+            # Go down one level
+            current_path = current_path + k + "/"
             continue
 
         # We have a leaf value here, so we can ask the user to give us a new one
@@ -75,8 +77,6 @@ def edit_dictionary(props):
             current_props[k] = type(current_props[k])(user_input)
         else:
             current_props[k] = user_input
-        # Go back one level
-        current_path = current_path.rsplit("/", 2)[0] + "/"
         modified = True
     print(f"{props}")
     return modified
