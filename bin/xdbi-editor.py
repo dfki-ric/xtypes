@@ -33,7 +33,8 @@ def edit_dictionary(props):
     current_path = "/"
     modified = False
     while 1:
-        current_props = props.copy()
+        #current_props = props.copy()
+        current_props = props
         # Follow path to get to the correct property level
         split = current_path.split("/",2)
         while len(split) > 2:
@@ -70,13 +71,31 @@ def edit_dictionary(props):
             continue
 
         # We have a leaf value here, so we can ask the user to give us a new one
-        user_input = input(f"Please provide value for '{k}' or press ENTER: ")
-        if not user_input:
-            continue
-        if type(current_props[k]) is not None:
+        if current_props[k] is not None:
+            user_input = input(f"Please provide value for '{k}' or press ENTER: ")
+            if not user_input:
+                continue
             current_props[k] = type(current_props[k])(user_input)
         else:
-            current_props[k] = user_input
+            user_input = input(f"[m: Map, a: Array, i: Integer, f: Float, s: String, ENTER: Skip]: ")
+            if not user_input:
+                continue
+            current_props.pop(k)
+            user_input = user_input.lower()
+            if user_input == 'm':
+                current_props[k] = dict()
+            elif user_input == 'a':
+                print(f"Arrays not supported yet :(")
+                continue
+            elif user_input == 'i':
+                current_props[k] = int()
+            elif user_input == 'f':
+                current_props[k] = float()
+            elif user_input == 's':
+                current_props[k] = str()
+            else:
+                print(f"Invalid option {user_input}")
+                continue
         modified = True
     print(f"{props}")
     return modified
