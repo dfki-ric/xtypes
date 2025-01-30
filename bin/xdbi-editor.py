@@ -29,9 +29,12 @@ def select_class_from(reg):
     return known_classes[selected_class_index]
 
 def edit_dictionary(props):
-    print("*** Edit properties ***")
-    current_path = "/"
     modified = False
+    print("*** Edit properties ***")
+    if not props:
+        modified = True
+        props = {}
+    current_path = "/"
     while 1:
         #current_props = props.copy()
         current_props = props
@@ -39,34 +42,75 @@ def edit_dictionary(props):
         split = current_path.split("/",2)
         while len(split) > 2:
             key = split[1] # a  # b
+            # Convert key to int if possible
+            try:
+                key = int(key)
+            except ValueError:
+                pass
             path = "/" + split[2] # /b/c  # /c
             current_props = current_props[key]
             split = path.split("/",2) # "", b, c, # "", c
 
-        # TODO: Handle arrays!
-
-        available_keys = current_props.keys()
+        # Ask for key if inside a map or for a number if inside an array
         print(f"{current_path}:")
-        for k in available_keys:
-            print(f"|--- {k}: {current_props[k]}")
-        k = input(f"Specify a key to add or edit: ")
-        if not k:
-            # Go back one level, but check if we got below root level "/"
-            split = current_path.rsplit("/", 2)
-            if len(split) < 3:
-                print("Done")
-                break
-            current_path = split[0] + "/"
+        if isinstance(current_props, dict):
+            available_keys = current_props.keys()
+            for k in available_keys:
+                print(f"|--- {k}: {current_props[k]}")
+            k = input(f"Specify a key [ENTER: go back]: ")
+            if not k:
+                # Go one level higher, but check if we got below root level "/"
+                split = current_path.rsplit("/", 2)
+                if len(split) < 3:
+                    print("Done")
+                    break
+                current_path = split[0] + "/"
+                continue
+            if k not in available_keys:
+                current_props[k] = None
+                print(f"New key {k} added")
+                continue
+        elif isinstance(current_props, list):
+            for k in range(0, len(current_props)):
+                print(f"|--- {k}: {current_props[k]}")
+            k = input(f"Specify an index [ENTER: go back]: ")
+            if not k:
+                # Go one level higher, but check if we got below root level "/"
+                split = current_path.rsplit("/", 2)
+                if len(split) < 3:
+                    print("Done")
+                    break
+                current_path = split[0] + "/"
+                continue
+            try:
+                k = int(k)
+            except ValueError:
+                print(f"Must be a number")
+                continue
+            if k >= len(current_props):
+                if len(current_props) < 1:
+                    current_props.append(None)
+                else:
+                    current_props.append(type(current_props[-1])())
+                print(f"New entry added")
+                continue
+        else:
+            raise TypeError(f"Current path {current_path} seems to lead to something {current_props} not a list or dict")
+
+        # Ask if a key shall be edited or deleted
+        user_input = input(f"[e: Edit key/index, d: Delete key/index, ENTER: Skip]: ")
+        if not user_input:
             continue
-        if k not in available_keys:
-            print(f"Adding new key {k}")
-            current_props[k] = None
+        user_input = user_input.lower()
+        if user_input == 'd':
+            current_props.pop(k)
+            print(f"Key {k} deleted")
             continue
 
-        # TODO: ask if a key shall be deleted or edited!
-
-        if isinstance(current_props[k], dict):
-            # Go down one level
+        # If key value is a map or an array go a level deeper
+        if isinstance(current_props[k], dict) or isinstance(current_props[k], list):
+            if isinstance(k, int):
+                k = str(k)
             current_path = current_path + k + "/"
             continue
 
@@ -80,24 +124,26 @@ def edit_dictionary(props):
             user_input = input(f"[m: Map, a: Array, i: Integer, f: Float, s: String, ENTER: Skip]: ")
             if not user_input:
                 continue
-            current_props.pop(k)
             user_input = user_input.lower()
             if user_input == 'm':
+                current_props.pop(k)
                 current_props[k] = dict()
             elif user_input == 'a':
-                print(f"Arrays not supported yet :(")
-                continue
+                current_props.pop(k)
+                current_props[k] = list()
             elif user_input == 'i':
+                current_props.pop(k)
                 current_props[k] = int()
             elif user_input == 'f':
+                current_props.pop(k)
                 current_props[k] = float()
             elif user_input == 's':
+                current_props.pop(k)
                 current_props[k] = str()
             else:
                 print(f"Invalid option {user_input}")
                 continue
         modified = True
-    print(f"{props}")
     return modified
 
 def edit_properties(xtype):
@@ -210,10 +256,6 @@ def edit_facts(dbi, xtype):
             to_edit = select_fact(xtype, relname)
             if not to_edit:
                 continue
-            #add_method = getattr(xtype, f"add_{relname}")
-            #if not callable(add_method):
-            #    print("ERROR: Found non-callable add method!")
-            #    continue
             # Edit edge properties
             current_props = to_edit.edge_properties
             if current_props is None:
@@ -221,7 +263,6 @@ def edit_facts(dbi, xtype):
             modified = edit_dictionary(current_props)
             if modified:
                 try:
-                    # FIXME: This currently only edits the current fact but does not update the inverse relation properties :( has to be fixed in XType::add_fact()
                     xtype.add_fact(relname, to_edit.target, current_props)
                     print(f"Fact updated")
                 except Exception as e:
