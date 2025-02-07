@@ -855,6 +855,10 @@ std::string xtypes::ComponentModel::export_to_basic_model()
                         config = xtypes::parseJson(otherInterfaceProps["configuration"].get<std::string>(), "xtypes::ComponentModel::exportToBasicModelJSON()->configuration2");
                     else
                         config = otherInterfaceProps["configuration"];
+                    if (otherInterfaceProps.contains("name"))
+                    {
+                        config["name"] = otherInterfaceProps["name"];
+                    }
                     version["components"]["configuration"]["edges"].push_back(config);
                 }
                 version["components"]["edges"].push_back(edgeData);
