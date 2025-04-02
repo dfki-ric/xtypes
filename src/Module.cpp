@@ -78,6 +78,7 @@ void xtypes::Module::configure(const nl::json& config_overrides)
 void xtypes::Module::apply_global_variables(const nl::json& global_variables)
 {
     nl::json vars = this->get_global_variables(global_variables);
+    // FIXME: We cannot return here! It may be that there are still global_variables pending BELOW the current level!!!
     if (!vars.is_object() || (vars.size() < 1))
         return;
     std::string configuration = inja::render(this->get_configuration().dump(), vars);
