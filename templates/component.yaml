@@ -67,3 +67,8 @@ methods:
     returns:
       type: MAP(XTYPE(InterfacePtr), VECTOR(XTYPE(InterfacePtr)))
     description: "Try to match every interface to a model interface by name and type. If such a match cannot be made the interface is added to the list returned together with type matching interfaces."
+
+  alias_or_name:
+    returns:
+      type: STRING
+    description: "Returns the alias if given and not-empty. Otherwise returns the name."

@@ -106,6 +106,13 @@ std::map<InterfacePtr, std::vector<InterfacePtr>> xtypes::Component::find_nonmat
     return result;
 }
 
+// Returns the alias if given and not-empty. Otherwise returns the name.
+std::string xtypes::Component::alias_or_name()
+{
+    const std::string& alias(this->get_alias());
+    return alias.empty() ? this->get_name() : alias;
+}
+
 // Overrides for setters of properties
 
 // Overrides for relation setters
