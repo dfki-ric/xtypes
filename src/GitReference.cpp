@@ -149,7 +149,6 @@ nl::json xtypes::GitReference::checkout_repository(const std::string& local_dir,
       else
       {
         remote_url = this->convert_url_to_https(remote_url, username, password);
-        std::cout<<username<<" "<<password<<" "<<remote_url;
         // Otherwise, clone the git from remote
         try
         {

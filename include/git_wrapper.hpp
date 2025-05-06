@@ -497,7 +497,7 @@ namespace xtypes
             }
             else if (allowed_types & GIT_CREDENTIAL_USERPASS_PLAINTEXT)
             {
-                std::cout << "Repository::acquire_credentials(): Athenticating with HTTPS\n";
+                std::cout << "Repository::acquire_credentials(): Authenticating with HTTPS\n";
                 const Repository *__this = static_cast<Repository *>(payload);
                 if (__this->m_username.empty())
                     throw std::runtime_error("Repository::acquire_credentials(): username is missing");
