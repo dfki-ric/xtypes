@@ -1000,10 +1000,10 @@ std::vector<ComponentModelPtr> xtypes::ComponentModel::import_from_basic_model(c
             for (const auto &eRefIt : v["external_references"])
             {
                 // TODO: Actually, the ExternalReference has to be looked up FIRST (by load_missing_external_reference or such) and only created if not found
-                ExternalReferencePtr eRef = registry->instantiate<ExternalReference>();
+                AutoprojReferencePtr eRef = registry->instantiate<AutoprojReference>();
                 eRef->set_properties(eRefIt);
                 // Afterwards we annotate the model with the external reference
-                model->annotate_with((ExternalReferencePtr)eRef, eRefIt["optional"]);
+                model->annotate_with((AutoprojReferencePtr)eRef, eRefIt["optional"]);
             }
         }
 
