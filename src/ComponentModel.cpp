@@ -539,7 +539,10 @@ ModulePtr xtypes::ComponentModel::build(const std::string& with_name, const std:
             InterfacePtr alias_interface_twin(parent_module->get_interface(alias_interface->get_name()));
             if (!alias_interface_twin)
             {
-                std::cout << "ComponentModel::build(): Could not resolve interface " << alias_interface->uri() << " of whole " << whole->uri() << " at parent module " << parent_module->uri() << "\n";
+                std::cerr << "ComponentModel::build(): WARNING: Could not resolve alias interface " << alias_interface->uri()
+                    << " of whole " << whole->uri()
+                    << " at parent module " << parent_module->uri()
+                    << "\n";
                 continue;
             }
             // We have found a match of alias and original interface! So now we resolve the counterparts.
@@ -561,7 +564,10 @@ ModulePtr xtypes::ComponentModel::build(const std::string& with_name, const std:
                 }
                 if (!original_interface_twin)
                 {
-                    std::cout << "ComponentModel::build(): Could not resolve abstract interface " << original_interface->uri() << " of part " << part->uri() << " at submodule " << submodule->uri() << "\n";
+                    std::cerr << "ComponentModel::build(): WARNING: Could not resolve abstract interface " << original_interface->uri()
+                        << " of part " << part->uri()
+                        << " at submodule " << submodule->uri()
+                        << "\n";
                     continue;
                 }
                 alias_interface_twin->alias_of(original_interface_twin);
@@ -570,7 +576,10 @@ ModulePtr xtypes::ComponentModel::build(const std::string& with_name, const std:
                 InterfacePtr original_interface_twin(submodule->get_interface(original_interface->get_name()));
                 if (!original_interface_twin)
                 {
-                    std::cout << "ComponentModel::build(): Could not resolve interface " << original_interface->uri() << " of part " << part->uri() << " at submodule " << submodule->uri() << "\n";
+                    std::cerr << "ComponentModel::build(): WARNING: Could not resolve interface " << original_interface->uri()
+                        << " of part " << part->uri()
+                        << " at submodule " << submodule->uri()
+                        << "\n";
                     continue;
                 }
                 alias_interface_twin->alias_of(original_interface_twin);
@@ -605,10 +614,17 @@ ModulePtr xtypes::ComponentModel::build(const std::string& with_name, const std:
             } else {
                 submodule_if = submodule->get_interface(part_if->get_name());
             }
+
             if (!submodule_if)
             {
-                throw std::runtime_error("ComponentModel::build(): Could not map part interface " + part_if->uri() + " to an interface of " + submodule->uri());
+                // Only produce a warning here. However, if there is a connection involved, this will turn into an error!!
+                // That means, that unconnected ports which cannot be mapped are just ignored.
+                std::cerr << "ComponentModel::build(): WARNING: Could not map interface " << part_if->uri()
+                    << " of part " << part->uri()
+                    << " to an interface of submodule " + submodule->uri()
+                    << "\n";
             }
+
             for (const auto &[i2, conn_props] : part_if->get_facts("others"))
             {
                 const InterfacePtr other_part_if(std::static_pointer_cast<Interface>(i2.lock()));
@@ -628,6 +644,7 @@ ModulePtr xtypes::ComponentModel::build(const std::string& with_name, const std:
                 }
                 if (!other_submodule)
                 {
+                    // NOTE: This is a true error!
                     throw std::runtime_error("ComponentModel::build(): Could not find submodule for " + other_part->uri());
                 }
                 InterfacePtr other_submodule_if;
@@ -650,7 +667,17 @@ ModulePtr xtypes::ComponentModel::build(const std::string& with_name, const std:
                 }
                 if (!other_submodule_if)
                 {
-                    throw std::runtime_error("ComponentModel::build(): Could not map part interface " + other_part_if->uri() + " to an interface of " + other_submodule->uri());
+                    // NOTE: This is a true error, since we cannot resolve a CONNECTED target interface
+                    throw std::runtime_error("ComponentModel::build(): Could not map target interface " + other_part_if->uri()
+                            + " of part " + other_part->uri()
+                            + " to an interface of submodule " + other_submodule->uri());
+                }
+                if (!submodule_if)
+                {
+                    // NOTE: This is a true error, since we cannot resolve a CONNECTED source interface
+                    throw std::runtime_error("ComponentModel::build(): Could not map source interface " + part_if->uri()
+                            + " of part " + part->uri()
+                            + " to an interface of submodule " + submodule->uri());
                 }
                 //std::cout << "connection: " << submodule_if->get_name() << " -> " << other_submodule_if->get_name() << "\n";
                 submodule_if->connected_to(other_submodule_if, conn_props);
